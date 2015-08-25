@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600"
+			   initialize="application1_initializeHandler(event)" xmlns:modelLocator="com.zlhw.client.base.modelLocator.*" xmlns:blazeDs="com.zlhw.client.base.blazeDs.*">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.zlhw.client.base.blazeDs.BlazeDsCommand;
+			import com.zlhw.client.base.blazeDs.BlazeDsEvent;
+			import com.zlhw.client.base.blazeDs.CenterControl;
+			import com.zlhw.client.base.blazeDs.MessageSubEvent;
+			import com.zlhw.client.common.model.Message;
+			
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.messaging.ChannelSet;
+			import mx.messaging.Consumer;
+			import mx.messaging.events.ChannelEvent;
+			import mx.messaging.events.MessageEvent;
+			public function triggerEvent(){
+				var evt : BlazeDsEvent = new BlazeDsEvent("MessageService","sendMessage",["message","luzc"]);
+				this.dispatchEvent(evt);
+			}
+
+			protected function application1_initializeHandler(event:FlexEvent):void
+			{
+				var evt : MessageSubEvent = new MessageSubEvent("message",messageHandler);
+				this.dispatchEvent(evt);
+			}
+
+			/**
+			 * 收到消息后向队列里添加消息
+			 * */
+			private function messageHandler(event:MessageEvent):void    
+			{   
+				var message:String = event.message.body as String; 
+				Alert.show(message);
+			}
+		]]>
+	</fx:Script>
+	<s:Button click="triggerEvent()"  name="luzc" />
+	<modelLocator:CommonModelLocator  />
+	<blazeDs:CenterControl/>
+</s:Application>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+	<!--
+		————————————————————————log4j配置——————————————————————————————————————
+	-->
+	<listener>
+		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+	</listener>
+	<context-param>
+  		<param-name>webAppRootKey</param-name>
+  		<param-value>webApp.root</param-value>
+ 	</context-param>
+	<context-param>
+		<param-name>log4jConfigLocation</param-name>
+		<param-value>/WEB-INF/classes/conf/log4j.properties</param-value>
+	</context-param>
+	<context-param>
+		<param-name>log4jExposeWebAppRoot</param-name>
+		<param-value>true</param-value>
+	</context-param>
+	<context-param>
+		<param-name>log4jRefreshInterval</param-name>
+		<param-value>10000</param-value>
+	</context-param>
+	<!--
+		————————————————————————————spring FLEX配置——————————————————————————————————
+	-->
+	<listener>
+		<listener-class>flex.messaging.HttpFlexSession</listener-class>
+	</listener>
+
+	<servlet>
+		<servlet-name>dispatcherServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+   		 <init-param>
+       		 <param-name>contextConfigLocation</param-name>
+        	 <param-value>classpath*:conf/spring/dispatcher-servlet.xml</param-value>
+    	</init-param>
+   		 <load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>dispatcherServlet</servlet-name>
+		<url-pattern>/messagebroker/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>dispatcherServlet</servlet-name>
+		<url-pattern>*.do</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>dispatcherServlet</servlet-name>
+		<url-pattern>*.json</url-pattern>
+	</servlet-mapping>
+
+	<!--
+		————————————————————————Memcache配置——————————————————————————————
+
+	<servlet>
+		<servlet-name>memcache</servlet-name>
+		<servlet-class>com.zb.base.Memcache.MemCacheConfig</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	-->
+	
+	<!--
+		————————————————————————上传——————————————————————————————————————
+	-->
+	<servlet>
+		<servlet-name>upload</servlet-name>
+		<servlet-class>com.zb.util.Upload</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>upload</servlet-name>
+		<url-pattern>/upload/*</url-pattern>
+	</servlet-mapping>
+	<!--
+		————————————————————————下载——————————————————————————————————————
+	-->
+	<servlet>
+		<servlet-name>download</servlet-name>
+		<servlet-class>com.zb.util.Download</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>download</servlet-name>
+		<url-pattern>/download/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>downloadPDF</servlet-name>
+		<servlet-class>com.ZLHW.bussiness.servlet.XlsDownLoad</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>downloadPDF</servlet-name>
+		<url-pattern>/downloadXls/*</url-pattern>
+	</servlet-mapping>
+
+	<!--
+		————————————————————————基本配置——————————————————————————————————————
+	-->
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+</web-app>

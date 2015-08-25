@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:CommonTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" 
+					  xmlns:ui="com.zlhw.client.base.ui.*">
+	<ui:layout>
+		<s:VerticalLayout/>
+	</ui:layout>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			[Bindable]
+			var organTreeList : ArrayCollection;
+			public var itemClickFunction : Function;
+			
+			public function  itemClickHandler(event:ListEvent){
+				if(itemClickFunction!=null){
+					var argArray : Array = new Array;
+					argArray.push(event.itemRenderer.data.data);
+					itemClickFunction.apply(this,argArray);
+				}
+					
+			}
+
+		]]>
+	</fx:Script>
+	<ui:CommonTree id="organTree" dataProvider="{organTreeList}"  itemClick="itemClickHandler(event)" />
+</ui:CommonTitleWindow>

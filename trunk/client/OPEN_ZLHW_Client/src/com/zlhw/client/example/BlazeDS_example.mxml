@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:base="com.zlhw.client.base.*" xmlns:blazeDs="com.zlhw.client.base.blazeDs.*" xmlns:view="com.jnlxc.client.base.view.*" xmlns:modelLocator="com.zlhw.client.base.modelLocator.*">
+
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.zlhw.client.base.blazeDs.BlazeDsEvent;
+			import com.zlhw.client.base.blazeDs.CenterControl;
+			
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			public function triggerEvent(){
+				var dataArray : Array = new Array();
+				var o1 :Object  = new Object;
+				var o2 :Object  = new Object;
+				o1.column2 = "o1column2";
+				o2.column1 = "o2column1";
+				o2.column2 = "o2column2";
+				o1.selected = 1;
+				dataArray.push(o1);
+				dataArray.push(o2);
+				var evt : BlazeDsEvent = new BlazeDsEvent("","",dataArray)
+				evt.doValidate = true;
+				this.dispatchEvent(evt);
+			}
+		]]>
+	</fx:Script>
+	<s:Button click="triggerEvent()"  name="luzc" />
+	<modelLocator:CommonModelLocator  />
+	<blazeDs:CenterControl/>
+</s:Application>

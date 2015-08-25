@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" horizontalGap="2" >
+	<fx:Script><![CDATA[
+		import com.zlhw.client.base.event.OperateRendererEvent;
+		import com.zlhw.client.base.model.BaseModel;
+		
+		import flash.events.*;
+		
+		import mx.containers.*;
+		import mx.controls.*;
+		import mx.core.*;
+		import mx.styles.*;
+
+		 public override function set data(label:Object) : void
+		{
+			super.data = label;
+			return;
+		}// end function
+		
+        public function eidtEventDispatch() : void
+        {
+            var _loc_1:OperateRendererEvent = new OperateRendererEvent("editEvent");
+            _loc_1.obj = BaseModel(data);
+            this.dispatchEvent(_loc_1);
+            return;
+        }// end function
+
+        public function deleteEventDispatch() : void
+        {
+            var _loc_1:OperateRendererEvent = new OperateRendererEvent("removeEvent");
+            _loc_1.obj = BaseModel(data);
+            this.dispatchEvent(_loc_1);
+            return;
+        }// end function
+
+        public function showEventDispatch() : void
+        {
+            var _loc_1:OperateRendererEvent = new OperateRendererEvent("viewEvent");
+            _loc_1.obj = BaseModel(data);
+            this.dispatchEvent(_loc_1);
+            return;
+        }// end function
+    ]]></fx:Script>
+
+	<s:Button label="查看" width="50" click="showEventDispatch()"/>
+	<s:Button label="修改" width="50" click="eidtEventDispatch()"/>
+	<s:Button label="删除" width="50" cornerRadius="4" click="deleteEventDispatch()"/>
+
+</mx:HBox>

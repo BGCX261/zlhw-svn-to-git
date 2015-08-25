@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<safeUser:SafeUserPanel xmlns:fx="http://ns.adobe.com/mxml/2009" label="法人管理"
+						xmlns:s="library://ns.adobe.com/flex/spark" 
+						xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:safeUser="com.zlhw.client.bussiness.safeUser.*" type="0" >
+
+</safeUser:SafeUserPanel>

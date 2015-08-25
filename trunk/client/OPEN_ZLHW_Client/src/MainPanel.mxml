@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:CommonTitleWindow borderColor="#B8B8C4"
+					  xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+					  title="顺泰安全管理平台" width="100%" height="100%"  initialize="init()" 
+					  xmlns:code="http://code.google.com/p/flexlib/" 
+					  xmlns:ui="com.zlhw.client.base.ui.*">
+	<ui:layout>
+		<s:VerticalLayout />
+	</ui:layout>
+	<fx:Script>
+		<![CDATA[
+			import com.adobe.ac.mxeffects.DistortionConstants;
+			import com.adobe.ac.mxeffects.Gate;
+			import com.zlhw.client.base.blazeDs.BlazeDsEvent;
+			import com.zlhw.client.base.modelLocator.CommonModelLocator;
+			import com.zlhw.client.base.ui.TabView;
+			import com.zlhw.client.common.login.LoginPanel;
+			import com.zlhw.client.common.model.AuthorDetail;
+			import com.zlhw.client.common.model.Message;
+			
+			import mx.charts.CategoryAxis;
+			import mx.collections.*;
+			import mx.controls.Alert;
+			import mx.controls.menuClasses.MenuItemRenderer;
+			import mx.core.Application;
+			import mx.core.Container;
+			import mx.core.IFlexDisplayObject;
+			import mx.effects.Parallel;
+			import mx.effects.Resize;
+			import mx.effects.Sequence;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ItemClickEvent;
+			import mx.events.ListEvent;
+			import mx.events.MenuEvent;
+			import mx.managers.PopUpManager;
+			import mx.messaging.ChannelSet;
+			import mx.messaging.Consumer;
+			import mx.messaging.events.MessageEvent;//引用ContactVO类
+
+			
+			/** 消息队列 **/
+			public var messageQueue : Array = new Array;
+				
+			public function init() : void//添加联系人的处理函数
+			{
+				CommonModelLocator.getInstance().menu=new ArrayCollection;
+				CommonModelLocator.getInstance().refresh();
+				//订阅消息
+//				submsg();
+				//初始化消息
+//				initMessage();
+				trace("正在初始化界面");
+			}
+			
+			/**
+			 * 
+			 * 初始化用户未读取消息
+			 * */
+			private function initMessage():void{
+				var initMessageEvent:BlazeDsEvent = 
+					new BlazeDsEvent("MessageService", "getUnReadMessage");
+				initMessageEvent.successFunction = function(result){
+					messageQueue = ArrayCollection(result).source;
+					setButtonLabel();
+				}
+				this.dispatchEvent(initMessageEvent);
+			}
+			/**
+			 * 订阅消息
+			 * */
+			public function submsg():void  
+			{   
+				var consumer:Consumer = new Consumer();   
+				consumer.destination = "message-data-feed";   
+				consumer.subtopic = "message";   
+				consumer.channelSet = new ChannelSet(["my-streaming-amf"]);   
+				consumer.addEventListener(MessageEvent.MESSAGE, messageHandler);   
+				consumer.subscribe();
+			}
+			/**
+			 * 收到消息后向队列里添加消息
+			 * */
+			private function messageHandler(event:MessageEvent):void    
+			{
+				var message:Message = event.message.body as Message; 
+				if(!message.sender.equals(CommonModelLocator.getInstance().admin)
+					&&((message.received!=null &&
+						message.received.equals(CommonModelLocator.getInstance().admin))
+					|| (message.received_Organ!=null 
+						&& CommonModelLocator.getInstance().admin.organ_Job.organ!=null
+						&& message.received_Organ.equals(CommonModelLocator.getInstance().admin.organ_Job.organ)))){
+					messageQueue.push(message);
+					setButtonLabel();
+				}
+			}
+			/**
+			 * 设置消息样式
+			 * */
+			private function setButtonLabel():void{
+//				if(messageQueue.length>0){
+//					this.messageGlowDown.play([this.message_button]);
+//					this.message_button.label = "你有"+messageQueue.length+"条新信息";
+//				}
+//				else
+//					this.message_button.label = "新的消息";
+			}
+			private function clickMenu(event:MenuEvent):void{
+				open(AuthorDetail(event.item));
+			}
+			protected function clickVMenu(event:ListEvent):void
+			{
+				open(AuthorDetail(event.itemRenderer.data));
+			}
+			
+			public function changeByPath(SuperTabBar:String) : TabView
+			{
+				var class1:Class = getDefinitionByName(SuperTabBar) as Class;
+				if (CommonModelLocator.getInstance()[SuperTabBar] == null)
+				{
+					CommonModelLocator.getInstance()[SuperTabBar] = new class1;
+				}
+				var view:TabView = TabView(CommonModelLocator.getInstance()[SuperTabBar]);
+				view.name = SuperTabBar;
+				if (this.viewstack1.getChildByName(SuperTabBar) == null)
+				{
+					this.viewstack1.addChild(view);
+				}
+				this.viewstack1.selectedChild = CommonModelLocator.getInstance()[SuperTabBar];
+				return view;
+			}// end function
+			/**
+			 * 开打menu菜单里的内容
+			 * */
+			private function open( authorDetail:AuthorDetail) : void
+			{
+				    //air程序
+					if(authorDetail.name=="退出系统"){
+						var e:BlazeDsEvent = new BlazeDsEvent( "AdminService","loginOut");
+						this.dispatchEvent(e);
+//						stage.nativeWindow.close();
+						return;
+					}else if(authorDetail.name=="重新登录"){
+							reLogin();
+							return;
+					}else if(authorDetail.name=="清除缓存"){
+						CommonModelLocator.getInstance().refresh();
+						return;
+					}else if(authorDetail.name=="数据库备份"){
+						var e:BlazeDsEvent = new BlazeDsEvent( "DBbackupService","backUp");
+						e.successFunction=function(result:Object){
+							Alert.show("备份成功:"+String(result));
+						};
+						this.dispatchEvent(e);
+					}else{
+					//----------------------------------
+					//event.item得到鼠标选中的对应ViewTableModelLocator.getInstance().menu中的Author
+					// path为权限对应的视图路径
+					//----------------------------------
+					var path:String=authorDetail.path;
+					
+					//打印权限名和视图路径
+					trace(authorDetail.name+":"+authorDetail.path);
+					
+					try{
+						//如果这个类不在ViewTableModelLocator中,实例化视图路径对应的类
+						var classRefrence:Class = getDefinitionByName(path) as Class;
+					if(CommonModelLocator.getInstance()[path]==null) 
+					{
+						CommonModelLocator.getInstance()[path]=new classRefrence;
+					}
+					//----------------------------------
+					// 如果ViewTableModelLocator中对应该视图路径的对象是TabView,
+					// 判断这个对象是否已经在viewstack1中,
+					// 如果不在添加这个对象 并选中
+					//----------------------------------
+					if((CommonModelLocator.getInstance()[path]) is TabView ){
+						var view:TabView=TabView(CommonModelLocator.getInstance()[path]);
+						view.name=path;
+						if(viewstack1.getChildByName(path)==null){
+							viewstack1.addChild(view);
+						}
+						    viewstack1.selectedChild=view;
+							view.refresh();
+						}
+			        //----------------------------------
+					// 如果ViewTableModelLocator中对应该视图路径的对象不是TabView,
+					// 则使用弹出窗口
+					//----------------------------------
+                        else{
+							 CommonTitleWindow(CommonModelLocator.getInstance()[path]).popUp();
+						}
+					
+				}catch(e : Error)
+				{
+					trace(e.getStackTrace());
+					Alert.show("视图路径错误");
+				}
+			 }
+			}
+			private function reLogin():void{
+				/**关门效果 **/
+				var mainApplication:ClientMain=ClientMain(Application.application);
+				var loginPanel:LoginPanel=mainApplication.loginPanel;
+				var loginStack:ViewStack=mainApplication.loginStack;
+				var mySequence:Sequence = new Sequence();
+				
+				var gate:Gate = new Gate(this);
+				gate.siblings = [ loginPanel ];
+				gate.direction = DistortionConstants.LEFT;    
+				gate.smooth = true;
+				gate.distortion = 10;
+				gate.mode = Gate.CLOSE;
+				gate.duration = 1000;
+				mySequence.addChild(gate);
+				
+				var parallel:Parallel = new Parallel();
+				var resize:Resize = new Resize();
+				resize.target = loginStack;
+				resize.duration = 1000;
+				resize.widthTo=300;
+				resize.heightTo=290;
+				parallel.addChild(resize);
+				resize = new Resize();
+				resize.target = loginPanel;
+				resize.duration = 1000;
+				resize.widthTo=300;
+				resize.heightTo=290;
+				parallel.addChild(resize);             
+				mySequence.addChild(parallel);
+				mySequence.play();				
+				/**关门效果 **/
+			}
+			public override function closeWindow(event:CloseEvent):void{
+				var e:BlazeDsEvent = new BlazeDsEvent( "AdminService","loginOut");
+				this.dispatchEvent(e);
+//				stage.nativeWindow.close();
+			}
+
+			/**
+			 * 点击消息按钮
+			 * */
+			public function messageBox():void{
+//				if(messageQueue.length < 1){
+//					var newMessagePanel : NewMessagePanel = new NewMessagePanel;
+//					newMessagePanel.popUp();
+//				}else{
+//					var message : Message  = Message(messageQueue.pop());
+//					
+//					var reMessagePanel : ReMessagePanel = new ReMessagePanel;
+//					reMessagePanel.message = message;
+//					reMessagePanel.popUp();
+//				}
+				setButtonLabel();
+			}
+
+
+
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<mx:Glow id="messageGlowDown" blurXFrom="0" color="0xFF0000" blurXTo="15" blurYFrom="0" blurYTo="15" />
+	</fx:Declarations>
+		<!-- 菜单栏控件 
+		<s:HGroup width="100%">
+		<mx:MenuBar width="80%"  labelField="name"  dataProvider="{CommonModelLocator.getInstance().menu}"  itemClick="clickMenu(event)">
+		</mx:MenuBar>
+		<s:Button label="退出系统"  />
+		<s:Button label="重新登录"  click="reLogin()"/>
+		<s:Button label="新的消息" id ="message_button" click="messageBox()" />
+	    </s:HGroup>
+	-->
+	<mx:HDividedBox  width="100%" height="100%">
+
+		<ui:VMenu height="100%" width="150" dataProvider="{CommonModelLocator.getInstance().menu}" itemClick="clickVMenu(event)">
+		</ui:VMenu>
+	
+		<s:VGroup width="100%" height="100%"  gap="1">
+			<code:SuperTabBar id="tabbar" dataProvider="{viewstack1}"/>
+			<mx:ViewStack id="viewstack1" width="100%" height="100%" borderStyle="solid" >
+				<s:NavigatorContent label="首页">
+					<mx:Text text="欢迎进入顺泰安全管理平台" fontSize="14" x="257" y="32">
+						
+					</mx:Text>
+				</s:NavigatorContent>
+            </mx:ViewStack>
+		</s:VGroup>
+	</mx:HDividedBox>
+</ui:CommonTitleWindow>

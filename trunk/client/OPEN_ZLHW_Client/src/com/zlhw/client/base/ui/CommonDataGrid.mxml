@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			 xmlns:s="library://ns.adobe.com/flex/spark" 
+			 xmlns:mx="library://ns.adobe.com/flex/mx" >
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.zlhw.client.base.util.ObjectUtil;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.events.FlexEvent;
+			
+			public var columsArray : Array;
+			
+			public var firstColumn : DataGridColumn;
+			
+//			public function creationCompleteHandler():void
+//			{
+//				var columnArray : Array = this.columns;
+//				if(firstColumn!=null)
+//					columnArray.push(firstColumn);
+//				
+//				if(columsArray!=null){
+//					for(var index = 0; index<columsArray.length; index++){
+//						var objColumn:DataGridColumn = new DataGridColumn(); 
+//						objColumn.dataField = columsArray[index];
+//						columnArray.push(objColumn);
+//					}
+//				}else{
+//					try{
+//						var fieldNames : Array = ObjectUtil.getKeys(this.dataProvider[0]);
+//						if(fieldNames.length<1)
+//							fieldNames = ObjectUtil.getFields(this.dataProvider[0]);
+//						
+//						for(var index = 0; index<fieldNames.length; index++){
+//							var objColumn:DataGridColumn = new DataGridColumn(); 
+//							objColumn.dataField = fieldNames[index];
+//							columnArray.push(objColumn);
+//						}
+//						
+//					}catch(e:Error){
+//						var nullColumn:DataGridColumn = new DataGridColumn(); 
+//						nullColumn.headerText = "没有数据";
+//						var nullData :ArrayCollection = new ArrayCollection;
+//						nullData.addItem("没有数据")
+//						this.dataProvider = nullData;
+//						columnArray.push(nullColumn);
+//						this.rowCount = 1;
+//					}
+//					
+//				}
+//				this.columns = columnArray;
+//			}
+
+		]]>
+	</fx:Script>
+	
+	
+</mx:DataGrid>

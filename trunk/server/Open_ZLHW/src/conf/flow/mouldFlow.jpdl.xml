@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="mouldFlow" xmlns="http://jbpm.org/4.4/jpdl">
+   
+   <on event="end">
+		<event-listener class="com.zb.jnlxc.JBPM.MouldFlowEndListener">
+		</event-listener>
+	</on>
+   <start g="186,3,48,48" name="start1">
+      <transition g="-55,-8" name="从模具主管添加模具订购单开始" to="外协购买模具（模具处于订制状态）"/>
+   </start>
+   <end g="43,295,48,48" name="end1"/>
+
+   <task assignee="#{association}" form="com.jnlxc.client.view.task.mouldTask.AssociationBuyPanel" g="88,85,240,32" name="外协购买模具（模具处于订制状态）">
+      <transition g="-25,-1" name="收货" to="仓管改为修模状态(708)"/>
+   </task>
+
+   <task form="com.jnlxc.client.view.task.mouldTask.TryoutPanel" g="135,171,144,34" name="仓管改为修模状态(708)">
+	   <assignment-handler class="com.zb.jnlxc.JBPM.MoulderAssignTask">
+	      <field name="powerId">
+	        <int value="708"/>
+	      </field>
+	   </assignment-handler>
+	      <transition g="-34,-10" name="修模" to="修模工添加修模记录"/>
+   </task>
+
+   <task assignee="#{repairer}" form="com.jnlxc.client.view.task.mouldTask.RepairModePanel" g="145,264,126,41" name="修模工添加修模记录">
+      <transition g="-34,3" name="正常" to="仓管修改为正常状态"/>
+      <transition g="314,239;315,158:11,-9" name="退货" to="外协购买模具（模具处于订制状态）"/>
+   </task>
+
+   <task assignee="#{warehouse}" form="com.jnlxc.client.view.task.mouldTask.NormalPanel" g="12,171,110,42" name="仓管修改为正常状态">
+      <transition to="end1"/>
+   </task>
+
+</process>

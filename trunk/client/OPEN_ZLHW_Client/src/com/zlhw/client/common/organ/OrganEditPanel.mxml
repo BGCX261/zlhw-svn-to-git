@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:CommonTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="com.zlhw.client.base.ui.*" width="400" height="300" xmlns:binding="com.zlhw.client.base.ui.binding.*">
+	<ui:layout>
+		<s:VerticalLayout/>
+	</ui:layout>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.zlhw.client.common.model.Organ;
+			public var organAction : OrganAction
+			public var organ : Organ = new Organ;
+			
+//			public function chooseParent():void{
+//				var organTreePanel : OrganTreePanel = new  OrganTreePanel;
+//				organTreePanel.organTreeList = organAction.organTreeList;
+//				organTreePanel.itemClickFunction = function(parentOrgan : Organ){
+//					parentOrganId.data = parentOrgan.dbId;
+//					parentOrganName.text = parentOrgan.name;
+//					organTreePanel.exit();
+//				}
+//				organAction.popUp(organTreePanel);
+//			}
+		]]>
+	</fx:Script>
+	<binding:BindingHidden id="parentOrganId" data="{organAction.selectedOrgan.parent}" bingdingProperty="parent" bingdingObject="{organ}" />
+	<binding:BindingHidden data="{organAction.selectedOrgan.code}" bingdingProperty="code" bingdingObject="{organ}" />
+	<binding:BindingHidden data="{organAction.selectedOrgan.dbId}" bingdingProperty="dbId" bingdingObject="{organ}" />
+	<mx:Form width="100%">
+		<mx:FormItem label="机构名称："  labelWidth="70">  
+			<binding:BingdingTextInput text="{organAction.selectedOrgan.name}"  bingdingProperty="name" bingdingObject="{organ}" />
+		</mx:FormItem>
+		<mx:FormItem label="父机构名称："  labelWidth="70">  
+			<s:TextInput id="parentOrganName"  text="{organAction.selectedParentOrgan.name}"  />
+		</mx:FormItem>
+	</mx:Form>
+	<s:HGroup width="100%" horizontalAlign="center">
+		<s:Button label="保存" click="this.organAction.editOrgan(organ)" />
+		<s:Button label="关闭" click="this.exit()" />
+	</s:HGroup>
+</ui:CommonTitleWindow>

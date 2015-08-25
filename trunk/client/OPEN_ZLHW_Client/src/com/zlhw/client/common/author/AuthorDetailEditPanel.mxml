@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:CommonTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="com.zlhw.client.base.ui.*" width="400" height="300" xmlns:binding="com.zlhw.client.base.ui.binding.*">
+	<ui:layout>
+		<s:BasicLayout/>
+	</ui:layout>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.zlhw.client.common.model.AuthorDetail;
+			
+			import mx.collections.ArrayCollection;
+			public var authorAction : AuthorAction;
+			[Bindable]
+			public var authorDetail : AuthorDetail = new AuthorDetail;
+			[Bindable]
+			public var authorDetailStatus : ArrayCollection = new ArrayCollection;
+		]]>
+	</fx:Script>
+	
+	<mx:Form width="100%">
+		<binding:BindingHidden data="{authorAction.selectedAuthorDetail.author}" bingdingProperty="author" bingdingObject="{authorDetail}"/>
+		<mx:FormItem label="权限明细名称："  labelWidth="70">  
+			<binding:BingdingTextInput text="{authorAction.selectedAuthorDetail.name}"  bingdingProperty="name" bingdingObject="{authorDetail}" />
+		</mx:FormItem>
+		<mx:FormItem label="returnView的包路径："  labelWidth="70">  
+			<binding:BingdingTextInput text="{authorAction.selectedAuthorDetail.path}"  bingdingProperty="path" bingdingObject="{authorDetail}" />
+		</mx:FormItem>
+		<mx:FormItem label="bean名称："  labelWidth="70">  
+			<binding:BingdingTextInput text="{authorAction.selectedAuthorDetail.beanName}"  bingdingProperty="beanName" bingdingObject="{authorDetail}" />
+		</mx:FormItem>
+		<mx:FormItem label="bean函数：" labelWidth="70">  
+			<binding:BingdingTextInput text="{authorAction.selectedAuthorDetail.beanFunction}"  bingdingProperty="beanFunction" bingdingObject="{authorDetail}" />
+		</mx:FormItem>
+		<mx:FormItem label="当前状态："  labelWidth="70">  
+			<binding:BingdingComboBox selectedKey="code" selectedValue="{authorAction.selectedAuthorDetail.status}" labelField="value" dataProvider="{authorDetailStatus}" showDefaultItem="true" bingdingComboBoxProperty="code" bingdingProperty="status" bingdingObject="{authorDetail}" />
+		</mx:FormItem>
+		<mx:FormItem label="操作："  labelWidth="70">
+			<s:HGroup width="100%" horizontalAlign="center">
+				<s:Button label="保存" click="this.authorAction.editAuthorDetail(authorDetail)" />
+				<s:Button label="关闭" click="this.exit()" />
+			</s:HGroup>
+		</mx:FormItem>
+	</mx:Form>
+</ui:CommonTitleWindow>

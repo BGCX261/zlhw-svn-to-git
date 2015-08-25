@@ -1,0 +1,28 @@
+insert into BASE_AUTHOR (DBID, NAME)
+values (16, '客户管理');
+insert into BASE_AUTHOR (DBID, NAME)
+values (17, '用户管理');
+insert into BASE_AUTHOR (DBID, NAME)
+values (18, '编码');
+insert into BASE_AUTHOR (DBID, NAME)
+values (19, '流程管理');
+insert into BASE_AUTHOR (DBID, NAME)
+values (20, '其他');
+
+--用户管理
+insert into BASE_AuthorDetail (DBID,Name,Author,Path,Beanname,Beanfunction,Status) values(1701,'操作员管理',17,'','','',0);
+insert into BASE_AuthorDetail (DBID,Name,Author,Path,Beanname,Beanfunction,Status) values(1702,'机构管理',17,'','','',0);
+insert into BASE_AuthorDetail (DBID,Name,Author,Path,Beanname,Beanfunction,Status) values(1703,'岗位管理',17,'','','',0);
+insert into BASE_AuthorDetail (DBID,Name,Author,Path,Beanname,Beanfunction,Status) values(1704,'角色管理',17,'','','',0);
+insert into BASE_AuthorDetail (DBID,Name,Author,Path,Beanname,Beanfunction,Status) values(1705,'权限管理',17,'','','',0);
+
+--流程管理
+insert into BASE_AuthorDetail (DBID,Name,Author,Path,Beanname,Beanfunction,Status) values(1801,'工作流程管理',17,'','','',0);
+
+--其他管理
+insert into BASE_AuthorDetail (DBID,Name,Author,Path,Beanname,Beanfunction,Status) values(2001,'退出系统',20,'','','',0);
+insert into BASE_AuthorDetail (DBID,Name,Author,Path,Beanname,Beanfunction,Status) values(2002,'重新登录',20,'','','',0);
+insert into BASE_AuthorDetail (DBID,Name,Author,Path,Beanname,Beanfunction,Status) values(2003,'修改密码',20,'com.jnlxc.client.view.admin.EditUserPassword','','',0);
+insert into BASE_AuthorDetail (DBID,Name,Author,Path,Beanname,Beanfunction,Status) values(2005,'清除缓存',20,'','','',0);
+insert into BASE_AuthorDetail (DBID,Name,Author,Path,Beanname,Beanfunction,Status) values(2006,'图片文件备份',20,'com.jnlxc.client.view.util.FileBackUp','','',0);
+insert into BASE_AuthorDetail (DBID,Name,Author,Path,Beanname,Beanfunction,Status) values(2007,'数据库备份',20,'','','',0);

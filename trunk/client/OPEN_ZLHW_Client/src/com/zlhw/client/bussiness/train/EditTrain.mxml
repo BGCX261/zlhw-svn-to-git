@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ui:CommonTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" title="编辑培训记录"
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" 
+					  xmlns:ui="com.zlhw.client.base.ui.*" 
+					  xmlns:code="http://code.google.com/p/flexlib/">
+	<fx:Script><![CDATA[
+		import com.zlhw.client.base.event.CommonEvent;
+		import com.zlhw.client.base.event.CommonRefreshEvent;
+		import com.zlhw.client.bussiness.model.Training;
+		
+		import flash.events.*;
+		import flash.utils.*;
+		
+		import mx.binding.*;
+		import mx.collections.*;
+		import mx.containers.*;
+		import mx.controls.*;
+		import mx.core.*;
+		import mx.events.*;
+
+        public var  typeList:ArrayCollection=new ArrayCollection([{label:"是", value:1}, {label:"否", value:0}]);
+		[Bindable]
+		public var train:Training;
+
+
+        public function init() : void
+        {
+           this.dispatchEvent(new CommonRefreshEvent(this.train));
+            return;
+        }// end function
+
+        public function ___EditTrain_MyPanel1_initialize(event:FlexEvent) : void
+        {
+            this.init();
+            return;
+        }// end function
+
+        public function startDate_changeHandler(event:CalendarLayoutChangeEvent) : void
+        {
+            var _loc_2:Date = new Date();
+            var _loc_3:Date = event.newDate;
+            _loc_2.setTime(_loc_3.getTime() + 365 * 3*24*3600*1000);
+            this.endDate.selectedDate = _loc_2;
+            return;
+        }// end function
+
+        public function save() : void
+        {
+            var copyTrain:Training;
+            if (this.certificate.text == "")
+            {
+                Alert.show("证书编号不允许为空");
+                return;
+            }
+            copyTrain = new Training();
+            this.train.assignTo(copyTrain);
+            copyTrain.startDate = this.startDate.selectedDate;
+            copyTrain.endDate = this.endDate.selectedDate;
+            copyTrain.certificate = this.certificate.text;
+            copyTrain.hasIdentity = this.hasIdentity.selectedItem.value;
+            copyTrain.hasPic = this.hasPic.selectedItem.value;
+            copyTrain.score = int(this.score.text);
+            copyTrain.trained = 1;
+            this.enabled = false;
+            var proxy:CommonEvent = new CommonEvent("TrainingService", "update", copyTrain);
+            proxy.successFunction = function (param1:Object)
+            {
+                copyTrain.assignTo(train);
+                successExit(param1);
+                return;
+            }// end function
+            ;
+            proxy.failFunction = faultExit;
+            this.dispatchEvent(proxy);
+            return;
+        }// end function
+    ]]></fx:Script>
+
+	<mx:Form>
+		<mx:HBox>
+			<mx:VBox>
+				<mx:FormItem label="培训对象:" >
+					<mx:TextInput id="safeUserName" enabled="false" text="{train.safeUser.name}" width="195"/>
+				</mx:FormItem>
+				<mx:FormItem label="开始日期:" >
+					<ui:CommonDateField id="startDate" change="{this.startDate_changeHandler(event);}" selectedDate="{train.startDate}" width="194"/>
+				</mx:FormItem>
+				<mx:FormItem label="是否有照片:" horizontalAlign="right">
+					<ui:CommonComboBox id="hasPic" dataProvider='{typeList}' selectedKey="value" selectedValue="{train.hasPic}" width="181" x="76"/>
+				</mx:FormItem>
+				<mx:FormItem label="有无身份证复印件:" horizontalAlign="right">
+					<ui:CommonComboBox id="hasIdentity" selectedValue="{train.hasIdentity}" selectedKey="value" dataProvider='{typeList}'/>
+				</mx:FormItem>
+			</mx:VBox>
+			<mx:VBox>
+				<mx:FormItem label="证书编号:" >
+					<mx:TextInput id="certificate" restrict="0-9" text="{train.certificate}"/>
+				</mx:FormItem>
+				<mx:FormItem label="截止日期:" >
+					<ui:CommonDateField id="endDate" selectedDate="{train.endDate}" width="158"/>
+				</mx:FormItem>
+				<mx:FormItem label="培训分数:" >
+					<mx:TextInput id="score" restrict="0-9" text="{train.score}"/>
+				</mx:FormItem>
+			</mx:VBox>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="center">
+			<ui:PermissionButton label="保存" click="{this.save();}"/>
+			<ui:PermissionButton label="取消" click="{exit();}"/>
+		</mx:HBox>
+	</mx:Form>
+
+</ui:CommonTitleWindow>

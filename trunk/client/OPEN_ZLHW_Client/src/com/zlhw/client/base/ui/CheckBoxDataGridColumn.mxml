@@ -1,0 +1,72 @@
+<mx:DataGridColumn  xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				 xmlns:s="library://ns.adobe.com/flex/spark" 
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:ui="com.zlhw.client.base.ui.*" 
+				 dataField="{_CheckBoxField}" >
+	<fx:Script>
+		<![CDATA[
+			import com.zlhw.client.base.util.ObjectUtil;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.IList;
+			import mx.controls.Alert;
+			import mx.events.CollectionEvent;
+			import mx.events.FlexEvent;
+			//定义checkBox对应字段名称或者属性名称
+			[Bindable]
+			private  var  _CheckBoxField : String = "selected";
+			
+			public function set CheckBoxField(value:String):void{
+				this.dataField=value;
+				_CheckBoxField = value;
+			}
+			public function get CheckBoxField():String{
+				return _CheckBoxField;
+			}
+		]]>
+	</fx:Script>
+			<!-- 头部渲染器 -->
+			<mx:headerRenderer>
+				<fx:Component>
+					<mx:HBox horizontalAlign="center" >
+						<fx:Script>
+							<![CDATA[
+								import mx.collections.ArrayCollection;
+								import mx.controls.DataGrid;
+								protected function headerClickHandler():void
+								{
+									//获取当前DataGrid中的dataProvide
+									var dataProvider : ArrayCollection =ArrayCollection((this.parent.parent as DataGrid).dataProvider);
+									var checkBoxDataGridColumn : CheckBoxDataGridColumn = this.outerDocument as CheckBoxDataGridColumn;
+									for each(var obj : Object in dataProvider){
+										obj[checkBoxDataGridColumn.CheckBoxField] = innerHeaderCheckBox.selected;
+									}
+								}
+							]]>
+						</fx:Script>
+						<mx:CheckBox selected="false" id="innerHeaderCheckBox" click="headerClickHandler()">
+							
+						</mx:CheckBox>
+					</mx:HBox>
+				</fx:Component>
+			</mx:headerRenderer>
+			<!-- 列表内容渲染器 -->
+			<mx:itemRenderer>
+				<fx:Component>
+					<mx:HBox horizontalAlign="center"  >
+						<fx:Script>
+							<![CDATA[
+								protected function itemClickHandler():void
+								{
+									var checkBoxDataGridColumn : CheckBoxDataGridColumn = this.outerDocument as CheckBoxDataGridColumn;
+									data[checkBoxDataGridColumn.CheckBoxField] = innerItemCheckBox.selected;
+								}
+							]]>
+						</fx:Script>
+						<mx:CheckBox selected="{data[this.outerDocument.CheckBoxField]}" id="innerItemCheckBox" click="itemClickHandler()">
+							
+						</mx:CheckBox>
+					</mx:HBox>
+				</fx:Component>
+			</mx:itemRenderer>
+</mx:DataGridColumn>

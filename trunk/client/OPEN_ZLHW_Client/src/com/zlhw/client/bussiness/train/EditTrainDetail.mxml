@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ui:CommonTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" 
+					  xmlns:ui="com.zlhw.client.base.ui.*" 
+					  xmlns:code="http://code.google.com/p/flexlib/" initialize="init()">
+	<fx:Script><![CDATA[
+		import com.zlhw.client.base.event.CommonBaseModelEvent;
+		import com.zlhw.client.base.event.CommonEvent;
+		import com.zlhw.client.base.event.CommonRefreshEvent;
+		import com.zlhw.client.bussiness.model.TrainDetail;
+		
+		import flash.events.*;
+		import flash.utils.*;
+		
+		import mx.binding.*;
+		import mx.collections.*;
+		import mx.containers.*;
+		import mx.controls.*;
+		import mx.core.*;
+		import mx.events.*;
+		
+		import org.flexunit.internals.namespaces.classInternal;
+
+        public var  typeList:ArrayCollection=new ArrayCollection([{label:"否", value:0}, {label:"是", value:1}]);
+		[Bindable]
+		public var  trainDetail:TrainDetail;
+		
+
+
+        public override function successExit(obj:Object) : void
+        {
+			
+            this.enabled = true;
+            this.exit();
+            this.dispatchEvent(new CommonRefreshEvent(this.trainDetail.training));
+            return;
+        }// end function
+
+        public function init() : void
+        {
+            this.dispatchEvent(new CommonRefreshEvent(this.trainDetail.training));
+            return;
+        }// end function
+
+        public function save() : void
+        {
+            var _loc_1:TrainDetail = new TrainDetail();
+            this.trainDetail.assignTo(_loc_1);
+            _loc_1.trainDate = this.train1Date.selectedDate;
+            _loc_1.trainType = this.train1Type.selectedItem.value;
+            _loc_1.trainScore = int(this.train1Score.text);
+            this.enabled = false;
+            var _loc_2:CommonEvent = null;
+            if (this.trainDetail.times == "第一年")
+            {
+                _loc_2 = new CommonEvent("TrainingService", "editYear1", _loc_1);
+            }
+            else if (this.trainDetail.times == "第二年")
+            {
+                _loc_2 = new CommonEvent("TrainingService", "editYear2", _loc_1);
+            }
+            else if (this.trainDetail.times == "第三年")
+            {
+                _loc_2 = new CommonEvent("TrainingService", "editYear3", _loc_1);
+            }
+            _loc_2.successFunction = function(result:Object){
+				_loc_1.assignTo(trainDetail);
+				successExit(result);
+			};
+            _loc_2.failFunction = faultExit;
+            this.dispatchEvent(_loc_2);
+            return;
+        }// end function
+    ]]></fx:Script>
+
+	<mx:Form>
+		<mx:HBox>
+			<mx:VBox>
+				<mx:FormItem label="证书编号:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="_EditTrainDetail_TextInput1" enabled="false" text="{trainDetail.training.certificate}"/>
+				</mx:FormItem>
+				<mx:FormItem label="培训日期:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonDateField id="train1Date" selectedDate="{trainDetail.trainDate}"/>
+				</mx:FormItem>
+			</mx:VBox>
+			<mx:VBox>
+				<mx:FormItem label="有无培训:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="train1Type" dataProvider="{typeList}" selectedKey="value" selectedValue="{trainDetail.trainType}"/>
+				</mx:FormItem>
+				<mx:FormItem label="成绩:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="train1Score" restrict="0-9" text="{trainDetail.trainScore}"/>
+				</mx:FormItem>
+			</mx:VBox>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="center">
+			<ui:PermissionButton label="保存" click="{this.save();}"/>
+			<ui:PermissionButton label="取消" click="{exit();}"/>
+		</mx:HBox>
+	</mx:Form>
+
+</ui:CommonTitleWindow>

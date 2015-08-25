@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" xmlns:ui="com.zlhw.client.base.ui.*" initialize="application1_initializeHandler(event)">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.zlhw.client.base.util.ObjectUtil;
+			
+			import mx.controls.CheckBox;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.events.FlexEvent;
+			
+			import spark.components.supportClasses.ItemRenderer;
+			
+			public var dataArray : Array = new Array();
+			public var columsArray : Array;
+
+			[Bindable]
+			public var firstColumn : DataGridColumn = new DataGridColumn;
+			
+			protected function application1_initializeHandler(event:FlexEvent):void
+			{
+				var o1 :TestModel  = new TestModel;
+				var o2 :TestModel  = new TestModel;
+				o1.column1 = "o1column1";
+				o1.column2 = "o1column2";
+				o2.column1 = "o2column1";
+				o2.column2 = "o2column2";
+				o1.selected = 1;
+				dataArray.push(o1);
+				dataArray.push(o2);
+//				var obj : Object = ObjectUtil.getAnnotations(o1);
+//				trace(obj.toString());
+//				firstColumn.itemRenderer = new ClassFactory(CheckBox);
+			}
+
+		]]>
+	</fx:Script>
+	<!--
+	<ui:BaseDataGrid dataProvider="{dataArray}" firstColumn="{firstColumn}" />
+	-->
+</s:Application>

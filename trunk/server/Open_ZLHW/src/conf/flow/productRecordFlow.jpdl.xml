@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="productRecordFlow" xmlns="http://jbpm.org/4.4/jpdl">
+    <on event="end">
+		<event-listener class="com.zb.jnlxc.JBPM.ProductRecordEndListener">
+		</event-listener>
+	</on>
+   <start g="7,34,48,48" name="start1">
+      <transition to="机台负责人打印生产跟踪单"/>
+   </start>
+   <task form="com.jnlxc.client.view.task.productTask.WeighingPanel" g="376,31,92,52" name="过磅(719)">
+        <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="719"/>
+	      </field>
+	   </assignment-handler>
+      <transition to="比较侧重与订单需求重量"/>
+   </task>
+   
+     <custom class="com.zb.jnlxc.JBPM.StartProductRecordFlow" g="437,175,100,52" name="启动跟踪单流程">
+  </custom>
+   
+   
+   <task form="com.jnlxc.client.view.task.productTask.AgingPanel" g="476,285,92,52" name="时效(721)">
+       <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="721"/>
+	      </field>
+	   </assignment-handler>
+      <transition to="订单记录判断"/>
+   </task>
+   <end g="523,434,48,48" name="end1"/>
+   <task form="com.jnlxc.client.view.task.productTask.PackagePanel" g="14,441,92,52" name="打包(722)">
+        <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="722"/>
+	      </field>
+	   </assignment-handler>
+      <transition to="仓管记录存放位置(725)"/>
+   </task>
+   <task form="com.jnlxc.client.view.task.productTask.OxidationPanel" g="326,282,92,52" name="氧化(723)">
+      <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="723"/>
+	      </field>
+	   </assignment-handler>
+      <transition to="打包(722)"/>
+   </task>
+   <task form="com.jnlxc.client.view.task.productTask.ElectrophoresisPanel" g="188,279,92,52" name="电泳(724)">
+       <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="724"/>
+	      </field>
+	   </assignment-handler>
+      <transition to="打包(722)"/>
+   </task>
+      <task form="com.jnlxc.client.view.task.productTask.PlatingPanel" g="72,279,92,52" name="喷涂（728）">
+       <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="724"/>
+	      </field>
+	   </assignment-handler>
+      <transition to="打包(722)"/>
+   </task>
+   <decision expr="#{path1}" g="33,178,48,48" name="数据库中记录判断">
+      <transition g="22,-1" name="时效" to="时效(721)"/>
+      <transition g="-28,-84" name="打包" to="打包(722)"/>
+      <transition g="10,-1" name="氧化" to="氧化(723)"/>
+      <transition g="-10,2" name="喷涂" to="喷涂（728）"/>
+      <transition g="-3,3" name="电泳" to="电泳(724)"/>
+   </decision>
+   <decision expr="#{path2}" g="383,441,48,48" name="订单记录判断">
+      <transition g="45,-12" name="打包" to="打包(722)"/>
+      <transition g="3,-20" name="氧化" to="氧化(723)"/>
+      <transition g="8,-1" name="电泳" to="电泳(724)"/>
+      <transition g="26,28" name="喷涂" to="喷涂（728）"/>
+   </decision>
+   <task form="com.jnlxc.client.view.task.productTask.WarehousePanel" g="-7,517,141,52" name="仓管记录存放位置(725)">
+       <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="725"/>
+	      </field>
+	   </assignment-handler>
+      <transition to="发货员记录重量(726)"/>
+   </task>
+   <task form="com.jnlxc.client.view.task.productTask.DeliveryPanel" g="204,517,133,52" name="发货员记录重量(726)">
+       <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="726"/>
+	      </field>
+	   </assignment-handler>
+      <transition to="财务记录价格(727)"/>
+   </task>
+   <task form="com.jnlxc.client.view.task.productTask.FinancePanel" g="408,516,132,52" name="财务记录价格(727)">
+       <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="727"/>
+	      </field>
+	   </assignment-handler>
+      <transition to="end1"/>
+   </task>
+   <decision expr="#{enough}" g="298,86,48,48" name="比较侧重与订单需求重量">
+      <transition g="-16,-19" name="足够" to="数据库中记录判断"/>
+      <transition g="9,-14" name="不足" to="fork1"/>
+   </decision>
+   <fork g="299,177,48,48" name="fork1">
+      <transition to="数据库中记录判断"/>
+      <transition to="启动跟踪单流程"/>
+   </fork>
+   <task form="com.jnlxc.client.view.task.productTask.PrintProductRecordPanel" g="123,30,181,52" name="机台负责人打印生产跟踪单">
+   <assignment-handler class="com.zb.jnlxc.JBPM.PrintProductAssignTask">
+	   </assignment-handler>
+      <transition to="过磅(719)"/>
+   </task>
+</process>

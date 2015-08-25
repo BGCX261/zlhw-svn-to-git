@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:TabView xmlns:fx="http://ns.adobe.com/mxml/2009"  label="工作流程管理"
+			xmlns:s="library://ns.adobe.com/flex/spark" 
+			xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="com.zlhw.client.base.ui.*" xmlns:flow="com.zlhw.client.common.flow.*" width="100%" height="100%" xmlns:layout="flexlib.scheduling.scheduleClasses.layout.*"  >
+	<ui:layout>
+		<s:VerticalLayout/>
+	</ui:layout>
+	<s:TabBar dataProvider="{taskViewStack}"/>
+	<mx:ViewStack id="taskViewStack" borderStyle="solid" width="100%" height="100%" >
+		<flow:MyTaskPanel />
+		<flow:FinishTaskPanel />
+		<flow:MyRequestPanel />
+		<flow:FinishRequestPanel />
+	</mx:ViewStack>
+</ui:TabView>

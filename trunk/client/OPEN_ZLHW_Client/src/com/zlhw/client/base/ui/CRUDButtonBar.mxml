@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ButtonBar xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			 xmlns:s="library://ns.adobe.com/flex/spark" 
+			 xmlns:mx="library://ns.adobe.com/flex/mx"
+			 dataProvider="{buttons}" itemClick="itemClickFun(event)"  >
+	<fx:Metadata>
+		[Event(name="addClick", type="flash.events.Event")] 
+		[Event(name="editClick", type="flash.events.Event")] 
+		[Event(name="deleteClick", type="flash.events.Event")] 
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.ItemClickEvent;
+			import mx.utils.ObjectUtil;
+
+			private var _itemName : String;
+			public function set itemName(value : String){
+				this._itemName = value;
+				this.buttons = new ArrayCollection;
+				this.buttons.addItem("添加"+_itemName);
+				this.buttons.addItem("修改"+_itemName);
+				this.buttons.addItem("删除"+_itemName);
+			}
+			protected function itemClickFun(event:ItemClickEvent):void
+			{
+				if(event.label==buttons.getItemAt(0)){
+					this.dispatchEvent( new Event("addClick"));
+				}else if(event.label==buttons.getItemAt(1)){
+					this.dispatchEvent( new Event("editClick"));
+				}else if(event.label==buttons.getItemAt(2)){
+					this.dispatchEvent( new Event("deleteClick"));
+				}
+			}
+
+		]]>
+
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<s:ArrayCollection id="buttons">
+			<fx:String>添加</fx:String>
+			<fx:String>修改</fx:String>
+			<fx:String>删除</fx:String>
+		</s:ArrayCollection>
+	</fx:Declarations>
+</mx:ButtonBar>

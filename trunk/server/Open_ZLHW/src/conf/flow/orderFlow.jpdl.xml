@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process name="orderFlow" xmlns="http://jbpm.org/4.3/jpdl">
+
+   <on event="end">
+		<event-listener class="com.zb.jnlxc.JBPM.OrderFlowEndListener">
+		</event-listener>
+	</on>
+   <start g="283,24,48,48" name="开单确定后">
+      <transition to="fork1"/>
+   </start>
+   <task form="com.jnlxc.client.view.task.orderTask.ProductionCheckPanel" g="11,211,117,52" name="生产部审核(712)">
+      <transition g="-30,-10" name="通过" to="车间分配机台(715)"/><assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="712"/>
+	      </field>
+	   </assignment-handler><assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="712"/>
+	      </field>
+	   </assignment-handler>
+       <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="712"/>
+	      </field>
+	   </assignment-handler>
+      <transition g="-41,-12" name="不通过" to="专业开单人修改订单(731)"/><assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="712"/>
+	      </field>
+	   </assignment-handler><assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="712"/>
+	      </field>
+	   </assignment-handler>
+       <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="712"/>
+	      </field>
+	   </assignment-handler>
+   </task>
+   <decision expr="#{weight > 1000 ? 'to 模具主管查看模具' : '合并'}" g="416,114,48,48" name="重量判断">
+      <transition g="-12,-10" name="to 模具主管查看模具" to="模具主管查看模具(714)"/>
+      <transition g="-29,-17" name="合并" to="join1"/>
+   </decision>
+   <task form="com.jnlxc.client.view.task.orderTask.MoulderLookPanel" g="410,210,152,52" name="模具主管查看模具(714)">
+      <transition g="-13,-13" name="有库存" to="join1"/><assignment-handler class="com.zb.jnlxc.JBPM.OrderFlowAssignTask">
+	      <field name="powerId">
+	        <int value="714"/>
+	      </field>
+	   </assignment-handler><assignment-handler class="com.zb.jnlxc.JBPM.OrderFlowAssignTask">
+	      <field name="powerId">
+	        <int value="714"/>
+	      </field>
+	   </assignment-handler>
+       <assignment-handler class="com.zb.jnlxc.JBPM.OrderFlowAssignTask">
+	      <field name="powerId">
+	        <int value="714"/>
+	      </field>
+	   </assignment-handler>
+      <transition g="478,294:-12,-3" name="无库存" to="添加模具订购单(启动模具订购流程)"/>
+   </task>
+   <task form="com.jnlxc.client.view.task.orderTask.WorkshopDistributionPanel" g="48,309,119,52" name="车间分配机台(715)"><assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="715"/>
+	      </field>
+	   </assignment-handler><assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="715"/>
+	      </field>
+	   </assignment-handler>
+        <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="715"/>
+	      </field>
+	   </assignment-handler>
+      <transition g="-33,-17" name="合并" to="join1"/>
+   </task>
+   <task assignee="#{agent}" form="com.jnlxc.client.view.task.orderTask.AgentCheckPanel" g="166,168,92,52" name="业务员核对">
+      <transition g="-12,7" name="通过" to="生产部审核(712)"/>
+      <transition g="173,133:8,-9" name="不通过" to="专业开单人修改订单(731)"/>
+   </task>
+   <end g="271,446,48,48" name="end1"/>
+   
+   <custom class="com.zb.jnlxc.JBPM.StartProductRecordFlow" g="245,368,100,52" name="启动跟踪单流程">
+      <transition to="end1"/>
+  </custom>
+   <fork g="282,94,48,48" name="fork1">
+      <transition to="业务员核对"/>
+      <transition to="重量判断"/>
+   </fork>
+   <join g="272,282,48,48" multiplicity="2" name="join1">
+      <transition to="启动跟踪单流程"/>
+   </join>
+   <task assignee="#{moulder}" form="com.jnlxc.client.view.task.orderTask.SaveMouldForOrderTask" g="406,320,211,52" name="添加模具订购单(启动模具订购流程)">
+      <transition g="511,287:" to="模具主管查看模具(714)"/>
+   </task>
+   <task form="com.jnlxc.client.view.task.orderTask.UpdateOrderPanel" g="5,60,167,52" name="专业开单人修改订单(731)">
+        <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="731"/>
+	      </field>
+	   </assignment-handler>
+      <transition g="119,161:" to="业务员核对"/>
+        <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="731"/>
+	      </field>
+	   </assignment-handler>
+        <assignment-handler class="com.zb.jnlxc.JBPM.PowerHandler">
+	      <field name="powerId">
+	        <int value="731"/>
+	      </field>
+	   </assignment-handler>
+   </task>
+</process>

@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ui:TabView xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" label="城镇管理" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+					  xmlns:ui="com.zlhw.client.base.ui.*" initialize="init()">
+	<fx:Script><![CDATA[
+		import com.zlhw.client.base.event.CommonArrayAddEvent;
+		import com.zlhw.client.base.event.CommonArrayDeleteEvent;
+		import com.zlhw.client.base.event.CommonArrayListEvent;
+		import com.zlhw.client.base.event.CommonBaseModelEvent;
+		import com.zlhw.client.base.event.CommonEvent;
+		import com.zlhw.client.bussiness.model.Town;
+		
+		import flash.events.*;
+		import flash.utils.*;
+		
+		import mx.binding.*;
+		import mx.collections.*;
+		import mx.containers.*;
+		import mx.controls.*;
+		import mx.controls.dataGridClasses.*;
+		import mx.core.*;
+		import mx.events.*;
+		[Bindable]
+		private var towns:ArrayCollection=new ArrayCollection;
+
+
+        public function removeTown() : void
+        {
+            var _loc_1:Town = null;
+            var _loc_2:CommonArrayDeleteEvent = null;
+            if (this.townList.selectedItem != null)
+            {
+                _loc_1 = Town(this.townList.selectedItem);
+                _loc_2 = new CommonArrayDeleteEvent("TownService", "delete", _loc_1);
+                _loc_2.dataArray = this.towns;
+                _loc_2.removeNode = _loc_1;
+                this.dispatchEvent(_loc_2);
+            }
+            else
+            {
+                Alert.show("请先选择需要删除的对象", "提示");
+            }
+            return;
+        }// end function
+
+
+
+        public function addTown() : void
+        {
+            var _loc_1:Town = new Town();
+            _loc_1.name = this.addTownName.text;
+            var _loc_2:CommonArrayAddEvent = new CommonArrayAddEvent("TownService", "create", _loc_1);
+            _loc_2.dataArray = this.towns;
+            this.dispatchEvent(_loc_2);
+            return;
+        }// end function
+
+        public override function refresh() : void
+        {
+            var _loc_1:CommonArrayListEvent = new CommonArrayListEvent("TownService", "findAll");
+            _loc_1.dataArray = this.towns;
+            this.dispatchEvent(_loc_1);
+            return;
+        }// end function
+
+        public function init() : void
+        {
+            var _loc_1:CommonArrayListEvent = new CommonArrayListEvent("TownService", "findAll");
+            _loc_1.dataArray = this.towns;
+            this.dispatchEvent(_loc_1);
+            return;
+        }// end function
+
+
+        public function editTown() : void
+        {
+            var _loc_1:Town = null;
+            var _loc_2:CommonEvent = null;
+            if (this.townList.selectedItem != null)
+            {
+                _loc_1 = Town(this.townList.selectedItem);
+                _loc_1.name = this.editTownName.text;
+                _loc_2 = new CommonEvent("TownService", "update", _loc_1);
+                this.dispatchEvent(_loc_2);
+            }
+            else
+            {
+                Alert.show("请先选择需要修改的对象", "提示");
+            }
+            return;
+        }// end function
+    ]]></fx:Script>
+
+	<mx:HBox>
+		<mx:DataGrid id="townList" width="279" height="328" dataProvider='{towns}'>
+			<mx:columns>
+				<mx:DataGridColumn headerText="编号" dataField="dbId" />
+				<mx:DataGridColumn headerText="城镇名" dataField="name" />
+			</mx:columns>
+			</mx:DataGrid>
+		<mx:VBox>
+			<mx:HBox>
+				<mx:Button label="添加" click="{this.addTown();}"/>
+				<mx:TextInput id="addTownName"/>
+			</mx:HBox>
+			<mx:HBox>
+				<mx:Button label="修改" click="{this.editTown();}"/>
+				<mx:TextInput id="editTownName" text="{townList.selectedItem.name}"/>
+			</mx:HBox>
+			<mx:Button label="删除" click="{this.removeTown();}"/>
+			<mx:Button label="刷新" click="{this.refresh();}"/>
+		</mx:VBox>
+	</mx:HBox>
+
+</ui:TabView>

@@ -1,0 +1,606 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ui:TabView xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			xmlns:s="library://ns.adobe.com/flex/spark" 
+			xmlns:mx="library://ns.adobe.com/flex/mx"
+			xmlns:ui="com.zlhw.client.base.ui.*"  label="公司管理"
+          initialize="init()">
+	<ui:layout>
+		<s:VerticalLayout/>
+	</ui:layout>
+	<fx:Script>
+		<![CDATA[
+			import com.zlhw.client.base.blazeDs.BlazeDsCommand;
+			import com.zlhw.client.base.blazeDs.BlazeDsEvent;
+			import com.zlhw.client.base.event.CommonArrayDeleteEvent;
+			import com.zlhw.client.base.event.CommonArrayListEvent;
+			import com.zlhw.client.base.event.CommonEvent;
+			import com.zlhw.client.base.event.CommonPageEvent;
+			import com.zlhw.client.base.model.Page;
+			import com.zlhw.client.base.modelLocator.CommonModelLocator;
+			import com.zlhw.client.base.ui.OperateRenderer;
+			import com.zlhw.client.base.util.DateUtil;
+			import com.zlhw.client.base.util.ObjectUtil;
+			import com.zlhw.client.bussiness.model.Company;
+			import com.zlhw.client.bussiness.model.SafeUser;
+			import com.zlhw.client.bussiness.model.Town;
+			import com.zlhw.client.bussiness.safeUser.EditSafeUser;
+			import com.zlhw.client.bussiness.safeUser.SafeUserPanel;
+			import com.zlhw.client.bussiness.safeUser.SaveSafeUser;
+			import com.zlhw.client.common.model.DataDict;
+			
+			import flash.events.*;
+			import flash.utils.*;
+			
+			import mx.binding.*;
+			import mx.collections.*;
+			import mx.containers.*;
+			import mx.controls.*;
+			import mx.controls.dataGridClasses.*;
+			import mx.core.*;
+			import mx.events.*;
+			import mx.states.*;
+			
+			import spark.components.Application;
+			
+			public var  viewCompany:ViewCompany;
+			public var  addCompany:AddCompany;
+			public var  editCompany:EditCompany;
+			[Bindable]
+			public var pageResultProxy:CommonPageEvent ;
+			[Bindable]
+			public var page:Page;
+			
+			[Bindable]
+			private var companys = new ArrayCollection();
+			[Bindable]
+			private var safeUsers = new ArrayCollection();
+			
+			private var hasAgentList = new ArrayCollection([{label:"请选择", value:99}, {label:"有", value:1}, {label:"无", value:0}]);
+			private var safeProvideList = new ArrayCollection([{label:"请选择", value:99}, {label:"有", value:1}, {label:"无", value:0}]);
+			private var hasTrainedList = new ArrayCollection([{label:"请选择", value:99}, {label:"是", value:1}, {label:"否", value:0}]);
+			
+			[Bindable]
+			private var townList = new ArrayCollection();
+			[Bindable]
+			private var companyTypeList = new ArrayCollection();
+			[Bindable]
+			private var natureList = new ArrayCollection();
+			
+			
+			public function doSearch() : void
+			{
+				this.page.currentPage = 1;
+				var _loc_1:Object = new Object();
+				_loc_1.type = "simpleSearch";
+				_loc_1.value = this.theCompanyName.text;
+				this.page.queryCondition = _loc_1;
+				this.pageResultProxy = new CommonPageEvent("CompanyService", "loadCompany", this.page);
+				pageResultProxy.page=this.page;
+				pageResultProxy.dataArray=this.companys;
+				this.dispatchEvent(this.pageResultProxy);
+			}// end function
+			
+			
+			
+			
+			public function autoGenerate()
+			{
+				var proxy:CommonEvent = new CommonEvent("CompanyService", "autoGenerate");
+				proxy.successFunction = function (param1:Object)
+				{
+					Alert.show("导入成功", "提示");
+					return;
+				}// end function
+					;
+				proxy.failFunction = function (param1:Object)
+				{
+					Alert.show("导入失败", "提示");
+					return;
+				}// end function
+					;
+				this.dispatchEvent(proxy);
+				return;
+			}// end function
+			
+			
+			public function deleteCompany(e:Event) : void
+			{
+				if (this.companyList.selectedItem != null)
+				{
+					Alert.okLabel = "确定";
+					Alert.cancelLabel = "取消";
+					Alert.show("你确定要删除吗？", "删除确认", 1 | 2, this, function (event:CloseEvent)
+					{
+						var _loc_2:Company = null;
+						var _loc_3:CommonArrayDeleteEvent = null;
+						if (event.detail == Alert.YES)
+						{
+							_loc_2 = Company(companyList.selectedItem);
+							_loc_3 = new CommonArrayDeleteEvent("CompanyService", "delete", _loc_2);
+							_loc_3.dataArray = companys;
+							_loc_3.removeNode = _loc_2;
+							UIComponent(e.target).dispatchEvent(_loc_3);
+						}
+						return;
+					}// end function
+					);
+				}
+				else
+				{
+					Alert.show("请选择需要删除的对象", "提示");
+				}
+				return;
+			}// end function
+			
+			
+			
+			
+			public function complexSearch() : void
+			{
+				this.page.currentPage = 1;
+				var _loc_1:* = new Object();
+				_loc_1.type = "complexSearch";
+				if (this.companyName.text != "")
+				{
+					_loc_1.companyName = this.companyName.text;
+				}
+				if (this.bianhao.text != "")
+				{
+					_loc_1.id = this.bianhao.text;
+				}
+				if (Town(this.town.selectedItem).dbId != 0)
+				{
+					_loc_1.townId = Town(this.town.selectedItem).dbId;
+				}
+				if (this.hasAgent.selectedItem.value != 99)
+				{
+					_loc_1.hasAgent = this.hasAgent.selectedItem.value;
+				}
+				if (this.safeProvide.selectedItem.value != 99)
+				{
+					_loc_1.safeProvide = this.safeProvide.selectedItem.value;
+				}
+				if (DataDict(this.companyType.selectedItem).dbId != 0)
+				{
+					_loc_1.companyTypeId = DataDict(this.companyType.selectedItem).dbId;
+				}
+				if (DataDict(this.nature.selectedItem).dbId != 0)
+				{
+					_loc_1.natureId = DataDict(this.nature.selectedItem).dbId;
+				}
+				if (this.hasTrained.selectedItem.value != 99)
+				{
+					_loc_1.hasTrained = this.hasTrained.selectedItem.value;
+				}
+				if (this.timeSelect.selected)
+				{
+					_loc_1.startDate = this.startDate.selectedDate;
+					_loc_1.endDate = this.endDate.selectedDate;
+				}
+				this.page.queryCondition = _loc_1;
+				this.pageResultProxy = new CommonPageEvent("CompanyService", "loadCompany", this.page);
+				pageResultProxy.page=this.page;
+				pageResultProxy.dataArray=this.companys;
+				this.dispatchEvent(this.pageResultProxy);
+				return;
+			}// end function
+			
+			public function checkTrained(obj:Object, column:DataGridColumn) : String
+			{
+				var _loc_3:int = int(obj["hasTrained"]);
+				if (_loc_3 == 0)
+				{
+					return "未培训";
+				}
+				if (_loc_3 > 0)
+				{
+					return "已培训";
+				}
+				return "";
+			}// end function
+			
+			
+			
+			
+			
+			
+			public function addSafeUser(e:MouseEvent) : void
+			{
+				var _loc_1:SaveSafeUser = null;
+				if (this.companyList.selectedItem != null)
+				{
+					_loc_1 = new SaveSafeUser();
+					_loc_1.safeUsers = this.safeUsers;
+					_loc_1.company = Company(this.companyList.selectedItem);
+					_loc_1.popUp();
+				}
+				else
+				{
+					Alert.show("请先选择单位", "提示");
+				}
+				return;
+			}// end function
+			
+			
+			
+			public function addCompanyPanel(event:Event) : void
+			{
+				this.addCompany = new AddCompany();
+				this.addCompany.companys = this.companys;
+				this.addCompany.popUp();
+				return;
+			}// end function
+			
+			public function advanceSearch(event:MouseEvent) : void
+			{
+				if (CheckBox(event.target).selected)
+				{
+					currentState = "s2";
+				}
+				else
+				{
+					currentState = "";
+				}
+				return;
+			}// end function
+			
+			
+			public function viewCompanyPanel(e:Event) : void
+			{
+				if (this.companyList.selectedItem != null)
+				{
+					this.viewCompany = new ViewCompany();
+					this.viewCompany.company = Company(this.companyList.selectedItem);
+					this.viewCompany.popUp();
+				}
+				else
+				{
+					Alert.show("请选择需要查看的企业或公司", "提示");
+				}
+				return;
+			}// end function
+			
+			
+			
+			public function searchInit() : void
+			{
+				var defaultEncoding:DataDict;
+				defaultEncoding = new DataDict();
+				defaultEncoding.name = "请选择";
+				defaultEncoding.dbId = 0;
+				var p1:CommonArrayListEvent = new CommonArrayListEvent("DataDictService", "findAllByCode", "C");
+				p1.dataArray = this.natureList;
+				p1.successFunction = function (_watcherSetupUtil:Object) : void
+				{
+					natureList.addItemAt(defaultEncoding, 0);
+					nature.selectedIndex = 0;
+					return;
+				}// end function
+					;
+				this.dispatchEvent(p1);
+				var p2:CommonArrayListEvent = new CommonArrayListEvent("DataDictService", "findAllByCode", "D");
+				p2.dataArray = this.companyTypeList;
+				p2.successFunction = function (_watcherSetupUtil:Object) : void
+				{
+					companyTypeList.addItemAt(defaultEncoding, 0);
+					companyType.selectedIndex = 0;
+					return;
+				}// end function
+					;
+				this.dispatchEvent(p2);
+				var p3:CommonArrayListEvent = new CommonArrayListEvent("TownService", "findAll");
+				p3.dataArray = this.townList;
+				p3.successFunction = function (_watcherSetupUtil:Object) : void
+				{
+					var _loc_2:Town = new Town();
+					_loc_2.name = "请选择";
+					_loc_2.dbId = 0;
+					townList.addItemAt(_loc_2, 0);
+					town.selectedIndex = 0;
+					return;
+				}// end function
+					;
+				this.dispatchEvent(p3);
+				return;
+			}// end function
+			
+			public override function refresh() : void
+			{
+				this.page = new Page();
+				this.page.currentPage = 1;
+				this.page.pageSize = 20;
+				this.pageResultProxy = new CommonPageEvent("CompanyService", "loadCompany", this.page);
+				this.pageResultProxy.page=this.page;
+				this.pageResultProxy.dataArray = this.companys;
+				this.dispatchEvent(this.pageResultProxy);
+				return;
+			}// end function
+			
+			public function isFaRen(obj:Object, column:DataGridColumn) : String
+			{
+				var _loc_3:int = int(obj[column.dataField]);
+				if (_loc_3 == 0)
+				{
+					return "是";
+				}
+				if (_loc_3 == 1)
+				{
+					return "否";
+				}
+				return "";
+			}// end function
+			
+			
+			
+			public function turnToSafeUser(event:MouseEvent) : void
+			{
+				var _loc_2:SafeUser = SafeUser(this.safeUserList.selectedItem);
+				var _loc_3:String = "com.zlhw.client.bussiness.safeUser.SafeUserPanel";
+				var _loc_4:SafeUserPanel = SafeUserPanel(CommonModelLocator.getInstance().mainPanel.changeByPath(_loc_3));
+				_loc_4.getSafeUser(_loc_2);
+				return;
+			}// end function
+			
+			
+			public function showTimeSelect(event:MouseEvent) : void
+			{
+				if (this.timeSelect.selected)
+				{
+					currentState = "timeselectstate";
+				}
+				else
+				{
+					currentState = "s2";
+				}
+				return;
+			}// end function
+			
+
+			public function init()
+			{
+				this.addEventListener("viewEvent", viewCompanyPanel);
+				this.addEventListener("editEvent", eidtCompanyPanel);
+				this.addEventListener("removeEvent", deleteCompany);
+				this.refresh();
+				return;
+			}// end function
+			
+			
+
+			
+			
+			
+			public function editSafeUser(e:MouseEvent) : void
+			{
+				var _loc_1:EditSafeUser = null;
+				if (this.safeUserList.selectedItem != null)
+				{
+					_loc_1 = new EditSafeUser();
+					_loc_1.safeUser = SafeUser(this.safeUserList.selectedItem);
+					_loc_1.popUp();
+				}
+				else
+				{
+					Alert.show("请先选择安全员", "提示");
+				}
+				return;
+			}// end function
+			
+			
+			public function boolanToString(item:Object, column:DataGridColumn) : String
+			{
+				if(item[column.dataField]){
+					return "无";
+				}else{
+					return "有";
+				}
+			}// end function
+			
+			
+			
+			public function getPhone1(obj:Object, column:DataGridColumn) : String
+			{
+				var _loc_3:int = int(obj["phone1Type"]);
+				if (_loc_3 == 0)
+				{
+					return "移动:" + obj["phone1"];
+				}
+				if (_loc_3 == 1)
+				{
+					return "联通:" + obj["phone1"];
+				}
+				if (_loc_3 == 2)
+				{
+					return "电信:" + obj["phone1"];
+				}
+				return obj["phone1"];
+			}// end function
+			
+			public function getPhone2(obj:Object, column:DataGridColumn) : String
+			{
+				var _loc_3:int = int(obj["phone2Type"]);
+				if (_loc_3 == 0)
+				{
+					return "移动:" + obj["phone2"];
+				}
+				if (_loc_3 == 1)
+				{
+					return "联通:" + obj["phone2"];
+				}
+				if (_loc_3 == 2)
+				{
+					return "电信:" + obj["phone2"];
+				}
+				return obj["phone2"];
+			}// end function
+			
+			
+			public function removeSafeUser(evt:MouseEvent) : void
+			{
+				if (this.safeUserList.selectedItem != null)
+				{
+					Alert.okLabel = "确定";
+					Alert.cancelLabel = "取消";
+					Alert.show("你确定要删除吗？", "删除确认", 1 | 2, this, function (event:CloseEvent)
+					{
+						var _loc_2:SafeUser = null;
+						var _loc_3:CommonArrayDeleteEvent = null;
+						if (event.detail == Alert.YES)
+						{
+							_loc_2 = SafeUser(safeUserList.selectedItem);
+							_loc_3 = new  CommonArrayDeleteEvent("SafeUserService", "delete", _loc_2);
+							_loc_3.dataArray = safeUsers;
+							_loc_3.removeNode = _loc_2;
+							UIComponent(evt.target).dispatchEvent(_loc_3);
+						}
+						return;
+					}// end function
+					);
+				}
+				else
+				{
+					Alert.show("请先选择需要删除的安全员");
+				}
+				return;
+			}// end function
+			
+			
+			
+			
+			public function getSafeUsers(event:ListEvent) : void
+			{
+				var _loc_2:Company = Company(this.companyList.selectedItem);
+				var _loc_3:CommonArrayListEvent = new CommonArrayListEvent("SafeUserService", "findByCompany", _loc_2);
+				_loc_3.dataArray = this.safeUsers;
+				this.dispatchEvent(_loc_3);
+				return;
+			}// end function
+			
+			
+			
+			public function eidtCompanyPanel(e:Event) : void
+			{
+				if (this.companyList.selectedItem != null)
+				{
+					this.editCompany = new EditCompany();
+					this.editCompany.company = Company(this.companyList.selectedItem);
+					this.editCompany.popUp();
+				}
+				else
+				{
+					Alert.show("请选择需要编辑的企业或公司", "提示");
+				}
+				return;
+			}// end function
+
+
+
+
+		]]>
+	</fx:Script>
+	<ui:states>
+		<s:State name="State1" />
+		<s:State name="s2"/>
+		<s:State name="timeselectstate"/>
+	</ui:states>
+	<mx:ApplicationControlBar dock="true" width="100%" height="35" verticalAlign="middle">
+		<ui:PermissionButton Permission="添加培训公司" label="公司添加" click="addCompanyPanel(event)"/>
+		<ui:PermissionButton Permission="修改培训公司" label="公司修改" click="eidtCompanyPanel(event)"/>
+		<ui:PermissionButton Permission="删除培训公司" label="公司删除" click="deleteCompany(event)"/>
+		<ui:PermissionButton Permission="原始数据导入" label="原始数据导入" click="{this.autoGenerate();}"/>
+		<mx:Label text="公司名称"/>
+		<mx:TextInput id="theCompanyName"/>
+		<mx:HBox id="searchBar"/>
+		<mx:Button label="搜索" click="doSearch()"/>
+		<mx:CheckBox label="高级搜索" click="advanceSearch(event)"/>
+	</mx:ApplicationControlBar>
+	<mx:VBox id="vbox1" height="100%" width="100%">
+		<mx:VDividedBox height="100%" width="100%">
+			<mx:HDividedBox id="_CompanyPanel_HDividedBox1" width="100%" height="500">
+				<mx:Panel headerHeight="15" height="100%" includeIn="s2,timeselectstate" initialize="searchInit()">
+					<mx:Form>
+						<mx:FormHeading label="高级搜索" />
+						<mx:FormItem labelWidth="70"  label="编号:"  >
+							<s:TextInput id="bianhao" />
+						</mx:FormItem>
+						<mx:FormItem labelWidth="70"  label="公司名:"  >
+							<s:TextInput id="companyName" />
+						</mx:FormItem>
+						<mx:FormItem labelWidth="70"  label="乡镇:"  >
+							<ui:CommonComboBox id="town" dataProvider="{townList}" labelField="name" />
+						</mx:FormItem>
+						<mx:FormItem labelWidth="70"  label="安全机构设置:"  >
+							<ui:CommonComboBox id="hasAgent" dataProvider="{hasAgentList}"/>
+						</mx:FormItem>
+						<mx:FormItem labelWidth="70"  label="安全人员配备:"  >
+							<ui:CommonComboBox id="safeProvide" dataProvider="{safeProvideList}" />
+						</mx:FormItem>
+						<mx:FormItem labelWidth="70"  label="单位类型:"  >
+							<ui:CommonComboBox id="companyType" dataProvider="{companyTypeList}" labelField="name"/>
+						</mx:FormItem>
+						<mx:FormItem labelWidth="70"  label="单位性质:" >
+							<ui:CommonComboBox id="nature" dataProvider="{natureList}" labelField="name"/>
+						</mx:FormItem>
+						<mx:FormItem labelWidth="70" label="培训与否:"  >
+							<ui:CommonComboBox id="hasTrained" dataProvider="{hasTrainedList}" />
+						</mx:FormItem>
+						<mx:FormItem labelWidth="70" label="添加时间:"  >
+							<mx:CheckBox id="timeSelect" click="showTimeSelect(event)"/>
+						</mx:FormItem>
+						<mx:FormItem labelWidth="70" label="起始时间:"  includeIn="timeselectstate" >
+							<ui:CommonDateField id="startDate" width="100%"/>
+							</mx:FormItem>
+						<mx:FormItem labelWidth="70" label="截止时间:"  includeIn="timeselectstate" >
+							<ui:CommonDateField id="endDate" width="100%"/>
+						</mx:FormItem>
+
+						<mx:FormItem labelWidth="70" label="搜索:"  >
+							<s:Button label="搜索" click="complexSearch()"/>
+							</mx:FormItem>
+					</mx:Form>
+				</mx:Panel>
+				<mx:Panel id="p1" width="100%" height="100%" headerHeight="15">
+					<ui:CommonDataGrid id="companyList" width="100%" height="100%"  itemClick="getSafeUsers(event)" doubleClickEnabled="true" itemDoubleClick="eidtCompanyPanel(event)" dataProvider='{companys}'>
+						<ui:columns>
+							<mx:DataGridColumn dataField="dbId" headerText="公司编号" />
+							<mx:DataGridColumn dataField="name" headerText="公司名称" />
+							<mx:DataGridColumn dataField="representative.name" headerText="法人代表" />
+							<mx:DataGridColumn dataField="town.name" headerText="所属乡镇" />
+							<mx:DataGridColumn dataField="phone" headerText="电话" />
+							<mx:DataGridColumn dataField="fax" headerText="传真" />
+							<mx:DataGridColumn dataField="guimo" headerText="企业规模" />
+							<mx:DataGridColumn dataField="hasAgent" headerText="安全机构设置" labelFunction="boolanToString" />
+							<mx:DataGridColumn dataField="safeProvide" headerText="安全人员配备" labelFunction="boolanToString" />
+							<mx:DataGridColumn dataField="type.name" headerText="单位类型" />
+							<mx:DataGridColumn dataField="nature.name" headerText="单位性质" />
+							<mx:DataGridColumn dataField="id" headerText="操作" width="160"  itemRenderer="com.zlhw.client.base.ui.OperateRenderer"  />
+							
+						</ui:columns>
+					</ui:CommonDataGrid>
+				</mx:Panel>
+			</mx:HDividedBox>
+			
+			<mx:VBox width="100%">
+				<mx:HBox>
+					<ui:PermissionButton Permission="添加培训员" label="添加安全员" click="addSafeUser(event)"/>
+					<ui:PermissionButton Permission="修改培训员" label="修改安全员" click="editSafeUser(event)"/>
+					<ui:PermissionButton Permission="删除培训员" label="删除安全员" click="removeSafeUser(event)"/>
+				</mx:HBox>
+				<ui:CommonDataGrid id="safeUserList" width="100%" rowCount="4" doubleClickEnabled="true"  doubleClick="turnToSafeUser(event)" dataProvider='{safeUsers}'>
+					<ui:columns>
+						<mx:DataGridColumn dataField="name" headerText="姓名" />
+						<mx:DataGridColumn dataField="type" headerText="是否是负责人" labelFunction="isFaRen" />
+						<mx:DataGridColumn dataField="hasTrained" headerText="是否培训" labelFunction="checkTrained" />
+						<mx:DataGridColumn dataField="identityID" headerText="身份证" />
+						<mx:DataGridColumn dataField="zhiCheng" headerText="职称" />
+						<mx:DataGridColumn dataField="school" headerText="毕业院校" />
+						<mx:DataGridColumn dataField="phone1" headerText="手机1" labelFunction="getPhone1" />
+						<mx:DataGridColumn dataField="phone2" headerText="手机2" labelFunction="getPhone2" />
+					</ui:columns>
+				</ui:CommonDataGrid>
+			</mx:VBox>
+		</mx:VDividedBox>
+		<ui:Pagination id="pagination" pageEvent="{pageResultProxy}"/>
+	</mx:VBox>
+
+</ui:TabView>

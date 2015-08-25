@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:TabView xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			xmlns:s="library://ns.adobe.com/flex/spark" 
+			xmlns:mx="library://ns.adobe.com/flex/mx"
+			xmlns:ui="com.zlhw.client.base.ui.*"
+			initialize="initHandler(event)" label="操作员管理"
+			>
+	<ui:layout>
+		<s:VerticalLayout/>
+	</ui:layout>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			public var adminAction : AdminAction = new AdminAction
+			protected function initHandler(event:FlexEvent):void
+			{
+				adminAction.adminPanel =this;
+				adminAction.init();
+				adminAction.loadJobList();
+			}
+			public  function statusDisplay(item:Object, column:DataGridColumn):String
+			{
+				return adminAction.adminStatusMap[item[column.dataField]];
+			}
+			public  function organ_JobDisplay(item:Object, column:DataGridColumn):String
+			{
+				return item[column.dataField].job.name;
+			}
+		]]>
+	</fx:Script>
+	<s:HGroup width="100%">
+	<ui:CRUDButtonBar  itemName="员工"
+					   addClick="this.adminAction.adminAdd()" 
+					   editClick="this.adminAction.adminEdit()" 
+					   deleteClick="optConfirm(this.adminAction.deleteAdmin)"/>
+	</s:HGroup>
+	<s:HGroup width="100%" height="100%">
+		<ui:CommonTree height="100%" id="jobTree" dataProvider="{adminAction.jobTreeList}" itemClick="this.adminAction.jobClick(event)" />
+		<mx:DataGrid height="100%" width="100%" dataProvider="{adminAction.adminList}" itemClick="this.adminAction.adminClick(event)" >
+			<mx:columns>
+				<mx:DataGridColumn headerText="编码" dataField="dbId" />
+				<mx:DataGridColumn headerText="账号" dataField="account"/>
+				<mx:DataGridColumn headerText="名称" dataField="name"/>
+				<mx:DataGridColumn headerText="机构-工作" dataField="organ_Job" labelFunction="organ_JobDisplay" />
+				<mx:DataGridColumn headerText="状态" dataField="state" labelFunction="statusDisplay"/>
+				<ui:CommonDatelumn headerText="上次登录时间" dataField="lastlogin"/>
+				<mx:DataGridColumn headerText="电子邮件" dataField="email"/>
+			</mx:columns>
+		</mx:DataGrid>
+	</s:HGroup>
+</ui:TabView>

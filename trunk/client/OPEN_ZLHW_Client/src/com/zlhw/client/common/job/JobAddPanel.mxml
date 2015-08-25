@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:CommonTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="com.zlhw.client.base.ui.*" width="400" height="300" xmlns:binding="com.zlhw.client.base.ui.binding.*">
+	<ui:layout>
+		<s:VerticalLayout/>
+	</ui:layout>
+	<fx:Script>
+		<![CDATA[
+			import com.zlhw.client.common.model.Job;
+			public var jobAction : JobAction;
+			public var job : Job= new Job;
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:Form width="100%">
+		<mx:FormItem label="工作名称："  labelWidth="70">  
+			<binding:BingdingTextInput   bingdingProperty="name" bingdingObject="{job}" />
+		</mx:FormItem>
+	</mx:Form>
+	<s:HGroup width="100%" horizontalAlign="center">
+		<s:Button label="保存" click="this.jobAction.saveJob(job)" />
+		<s:Button label="关闭" click="this.exit()" />
+	</s:HGroup>
+</ui:CommonTitleWindow>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+			  xmlns:mx="library://ns.adobe.com/flex/mx" >
+	<fx:Script>
+		 <![CDATA[
+			import com.zlhw.client.base.event.CommonPageEvent;
+			import com.zlhw.client.base.model.Page;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			
+			[Bindable]
+			public var pageEvent : CommonPageEvent = new CommonPageEvent("","",false,new Page());
+			
+		
+			/**
+			 *  点击产生的事件
+			 * 	如果当前页存在,执行事件派发
+			 * */
+			public function query(currentPage : int):void{
+				if(currentPage<1 || currentPage>pageEvent.page.totalPage){
+					Alert.show("这一页已经没有了");
+					return;
+				}
+				pageEvent.page.currentPage = currentPage;
+				dispatch();	
+			}
+			/**
+			 *  派发分页事件
+			 * */
+			public function dispatch():void{
+				pageEvent.page.resultData=null;
+				this.dispatchEvent(pageEvent);
+				
+			}
+		]]>
+
+			</fx:Script>
+		<s:Button label="上一页"  click="query(pageEvent.page.currentPage-1)" enabled="{pageEvent.page.currentPage!=1?true:false}" />
+		
+		<s:Button label="下一页"  click="query(pageEvent.page.currentPage+1)" enabled="{pageEvent.page.currentPage!=pageEvent.page.totalPage?true:false}" />
+		
+		<s:Button label="首页"  click="query(1)" enabled="{pageEvent.page.currentPage!=1?true:false}" />
+		
+		<s:Button label="末页"  click="query(pageEvent.page.totalPage)" enabled="{pageEvent.page.currentPage!=pageEvent.page.totalPage?true:false}" />
+		
+		<s:Label  id="totelPage" text="共{pageEvent.page.totalPage.toString()}页" />
+		
+		<s:Label text="跳转到" />
+		
+		<s:TextInput id="toPage" text="{pageEvent.page.currentPage.toString()}" maxWidth="120"/>
+		<s:Label text="页" />
+		<s:Button label="确定" click="query(Number(this.toPage.text))" />
+	</s:HGroup>

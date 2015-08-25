@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:CommonTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="com.zlhw.client.base.ui.*" width="400" height="300" xmlns:binding="com.zlhw.client.base.ui.binding.*">
+	<ui:layout>
+		<s:VerticalLayout/>
+	</ui:layout>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.zlhw.client.common.model.Role;
+			public var roleAction : RoleAction;
+			public var role : Role = new Role;
+		]]>
+	</fx:Script>
+	<binding:BindingHidden data="{roleAction.selectedRole.dbId}" bingdingProperty="dbId" bingdingObject="{role}" />
+	<mx:Form width="100%">
+		<mx:FormItem label="权限名称："  labelWidth="70">  
+			<binding:BingdingTextInput text="{roleAction.selectedRole.name}"   bingdingProperty="name" bingdingObject="{role}" />
+		</mx:FormItem>
+	</mx:Form>
+	<s:HGroup width="100%" horizontalAlign="center">
+		<s:Button label="保存" click="this.roleAction.editRole(role)" />
+		<s:Button label="关闭" click="this.exit()" />
+	</s:HGroup>
+</ui:CommonTitleWindow>

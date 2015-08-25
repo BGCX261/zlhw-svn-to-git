@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:CommonTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="com.zlhw.client.base.ui.*" width="400" height="300">
+	<ui:layout>
+		<s:VerticalLayout/>
+	</ui:layout>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			public var organAction : OrganAction;
+			[Bindable]
+			public var treeList : ArrayCollection = new ArrayCollection;
+			
+			
+		]]>
+	</fx:Script>
+	<mx:DataGrid sortableColumns="false" id="jobDataGrid" dataProvider="{treeList}" >
+		<mx:columns>
+			<ui:CheckBoxDataGridColumn  />
+			<mx:DataGridColumn headerText="编码" dataField="data.dbId" />
+			<mx:DataGridColumn headerText="名称" dataField="data.name"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<s:Button click="organAction.disTributeJob(treeList)" label="保存" />
+</ui:CommonTitleWindow>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<actionScriptProperties mainApplicationPath="ClientMain.mxml" projectUUID="4d55c2de-6010-49ac-987e-822e2a5e81f7" version="6">
+  <compiler additionalCompilerArguments="-locale en_US" autoRSLOrdering="true" copyDependentFiles="true" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderLocation="E:/zb_workspace/ZLHW_server/WebRoot/flexbin" outputFolderPath="bin-debug" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
+    <compilerSourcePath/>
+    <libraryPath defaultLinkType="0">
+      <libraryPathEntry kind="4" path="">
+        <excludedEntries>
+          <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/flex.swc" useDefaultLinkType="false"/>
+        </excludedEntries>
+      </libraryPathEntry>
+      <libraryPathEntry kind="1" linkType="1" path="libs"/>
+      <libraryPathEntry kind="1" linkType="1" path="${FLEXUNIT_LIB_LOCATION}/version4libs/Common/"/>
+      <libraryPathEntry kind="1" linkType="1" path="${FLEXUNIT_LIB_LOCATION}/version4libs/FlexProject/"/>
+      <libraryPathEntry kind="1" linkType="1" path="${FLEXUNIT_LOCALE_LOCATION}/version4locale/"/>
+    </libraryPath>
+    <sourceAttachmentPath/>
+  </compiler>
+  <applications>
+    <application path="com/zlhw/client/example/ComboBox_example.mxml"/>
+    <application path="ClientMain.mxml"/>
+    <application path="com/zlhw/client/example/DataGrid_example.mxml"/>
+    <application path="com/zlhw/client/example/Grid_example.mxml"/>
+    <application path="com/zlhw/client/example/BlazeDS_example.mxml"/>
+    <application path="com/zlhw/client/example/Admin_example.mxml"/>
+    <application path="com/zlhw/client/example/Bingding_example.mxml"/>
+    <application path="test.mxml"/>
+    <application path="com/zlhw/client/common/author/Author_example.mxml"/>
+    <application path="com/zlhw/client/common/dict/Dict_example.mxml"/>
+    <application path="com/zlhw/client/common/admin/Admin_example.mxml"/>
+    <application path="com/zlhw/client/common/job/Job_example.mxml"/>
+    <application path="com/zlhw/client/common/organ/Organ_example.mxml"/>
+    <application path="com/zlhw/client/common/role/Role_example.mxml"/>
+    <application path="com/zlhw/client/example/Dict_example.mxml"/>
+    <application path="teststate.mxml"/>
+  </applications>
+  <modules/>
+  <buildCSSFiles/>
+</actionScriptProperties>

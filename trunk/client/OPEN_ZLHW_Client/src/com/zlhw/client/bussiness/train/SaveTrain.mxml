@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ui:CommonTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"  title="添加培训记录"
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" 
+					  xmlns:ui="com.zlhw.client.base.ui.*" 
+					  xmlns:code="http://code.google.com/p/flexlib/" >
+	<fx:Script><![CDATA[
+		import com.zlhw.client.base.event.CommonArrayAddEvent;
+		import com.zlhw.client.bussiness.model.SafeUser;
+		import com.zlhw.client.bussiness.model.Training;
+		
+		import flash.events.*;
+		import flash.utils.*;
+		
+		import mx.binding.*;
+		import mx.collections.*;
+		import mx.containers.*;
+		import mx.controls.*;
+		import mx.core.*;
+		import mx.events.*;
+
+		
+		private var typeList:ArrayCollection = new ArrayCollection([{label:"是", value:1}, {label:"否", value:0}]);
+		[Bindable]
+		public var trains = new ArrayCollection();
+		[Bindable]
+		public var safeUser;
+
+
+        public function startDate_changeHandler(event:CalendarLayoutChangeEvent) : void
+        {
+            var _loc_2:* = new Date();
+            var _loc_3:* = event.newDate;
+            _loc_2.setDate(_loc_3.date + 365 * 3);
+            this.endDate.selectedDate = _loc_2;
+            return;
+        }// end function
+
+        public function save() : void
+        {
+            if (this.certificate.text == "")
+            {
+                Alert.show("证书编号不允许为空");
+                return;
+            }
+            var _loc_1:Training = new Training();
+            _loc_1.safeUser = this.safeUser;
+            _loc_1.startDate = this.startDate.selectedDate;
+            _loc_1.endDate = this.endDate.selectedDate;
+            _loc_1.certificate = this.certificate.text;
+            _loc_1.hasIdentity = this.hasIdentity.selectedItem.value;
+            _loc_1.hasPic = this.hasPic.selectedItem.value;
+            _loc_1.score = int(this.score.text);
+            _loc_1.trained = 1;
+            this.enabled = false;
+            var _loc_2:CommonArrayAddEvent = new CommonArrayAddEvent("TrainingService", "create", _loc_1);
+            _loc_2.dataArray = this.trains;
+            _loc_2.successFunction = successExit;
+            _loc_2.failFunction = faultExit;
+            this.dispatchEvent(_loc_2);
+            return;
+        }// end function
+    ]]></fx:Script>
+
+	<mx:Form>
+		<mx:HBox>
+			<mx:VBox>
+				<mx:FormItem label="培训对象:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="safeUserName" enabled="false" text="{safeUser.name}"/>
+				</mx:FormItem>
+				<mx:FormItem label="开始日期:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonDateField id="startDate" change="startDate_changeHandler(event)"/>
+				</mx:FormItem>
+				<mx:FormItem label="是否有照片:" horizontalAlign="right">
+					<ui:CommonComboBox id="hasPic" dataProvider='{typeList}'/>
+				</mx:FormItem>
+				<mx:FormItem label="有无身份证复印件:" horizontalAlign="right">
+					<ui:CommonComboBox id="hasIdentity" dataProvider='{typeList}'/>
+				</mx:FormItem>
+			</mx:VBox>
+			<mx:VBox>
+				<mx:FormItem label="证书编号:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="certificate" restrict="0-9"/>
+				</mx:FormItem>
+				<mx:FormItem label="截止日期:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonDateField id="endDate"/>
+				</mx:FormItem>
+				<mx:FormItem label="培训分数:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="score" restrict="0-9"/>
+				</mx:FormItem>
+			</mx:VBox>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalAlign="center">
+			<ui:PermissionButton label="保存" click="{this.save();}"/>
+			<ui:PermissionButton label="取消" click="{exit();}"/>
+		</mx:HBox>
+	</mx:Form>
+
+</ui:CommonTitleWindow>

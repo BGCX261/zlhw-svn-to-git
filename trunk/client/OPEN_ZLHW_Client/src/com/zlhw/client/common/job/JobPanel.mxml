@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:TabView xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			xmlns:s="library://ns.adobe.com/flex/spark" 
+			xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="com.zlhw.client.base.ui.*"
+			width="100%" height="100%" initialize="initHandler(event)"
+			label="岗位管理">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			public var jobAction : JobAction = new JobAction;
+			protected function initHandler(event:FlexEvent):void
+			{
+				jobAction.jobPanel =this;
+				jobAction.init();
+				jobAction.loadJobList();
+			}
+			
+		]]>
+	</fx:Script>
+	<s:HGroup>
+		<ui:CRUDButtonBar  itemName="岗位"
+						   addClick="this.jobAction.jobAdd()" 
+						   editClick="this.jobAction.jobEdit()" 
+						   deleteClick="optConfirm(this.jobAction.deleteJob)"/>
+		
+		<s:Button label="分配角色" click="this.jobAction.roleDistribute()"  />
+	</s:HGroup>
+	<s:HGroup width="100%" height="100%">
+		<mx:List height="100%" dataProvider="{jobAction.jobList}" labelField="name"  itemClick="this.jobAction.jobClick(event)" />
+		<mx:DataGrid height="100%" width="100%" dataProvider="{jobAction.roleList}">
+			<mx:columns>
+				<mx:DataGridColumn headerText="编码" dataField="dbId" />
+				<mx:DataGridColumn headerText="岗位名称" dataField="name"/>
+			</mx:columns>
+		</mx:DataGrid>
+	</s:HGroup>
+</ui:TabView>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"  
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" xmlns:blazeDs="com.zlhw.client.base.blazeDs.*" xmlns:login="com.zlhw.client.common.login.*" initialize="init(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.zlhw.client.base.blazeDs.BlazeDsCommand;
+			import com.zlhw.client.base.blazeDs.BlazeDsEvent;
+			import com.zlhw.client.base.blazeDs.MessageSubCommand;
+			import com.zlhw.client.base.blazeDs.MessageSubEvent;
+			import com.zlhw.client.base.util.DateUtil;
+			import com.zlhw.client.base.util.ObjectUtil;
+			
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			
+
+			protected function init(event:FlexEvent):void
+			{
+				this.systemManager.addEventListener(BlazeDsEvent._RemoteEvent,doPRCListener,true);
+				this.systemManager.addEventListener(BlazeDsEvent._RemoteEvent,doPRCListener,false);
+				this.systemManager.addEventListener(MessageSubEvent._MessageSubEvent,doMessageSubListener,true);
+				this.systemManager.addEventListener(MessageSubEvent._MessageSubEvent,doMessageSubListener,false);
+			}
+			
+			private function doPRCListener(evt : Event){
+				try{
+					var command : BlazeDsCommand = new BlazeDsCommand(BlazeDsEvent(evt));
+					trace(DateUtil.format(new Date,DateUtil._SecondDateFormatString)+" : catch a RemoteEvent >> "+ObjectUtil.getClassName(evt));
+					command.doCommand();
+				}catch(e:Error){
+					trace(e.getStackTrace());
+					Alert.show("类型转换失败，你派发的事件不是com.zlhw.client.base.blazeDs.RemteEvent类型");
+					return;
+				}
+				
+			}
+			private function doMessageSubListener(evt : Event){
+				try{
+					var command : MessageSubCommand = new MessageSubCommand(MessageSubEvent(evt));
+					trace(DateUtil.format(new Date,DateUtil._SecondDateFormatString)+" : catch a MessageEvent >> "+ObjectUtil.getClassName(evt));
+					command.doCommand();
+				}catch(e:Error){
+					trace(e.getStackTrace());
+					Alert.show("类型转换失败，你派发的事件不是com.zlhw.client.base.blazeDs.MessageEvent类型");
+					return;
+				}
+			}
+
+		]]>
+	</fx:Script>
+	<s:layout>
+		<s:VerticalLayout verticalAlign="middle" horizontalAlign="center" gap="0" />
+	</s:layout>
+	<!-- <view:LoginPanel loginModel="{model.loginModel}"/> -->
+	<mx:ViewStack id="loginStack" paddingLeft="0" verticalGap="0" paddingRight="0" paddingTop="0" paddingBottom="0">
+		<s:NavigatorContent>
+			<login:LoginPanel id="loginPanel" />
+		</s:NavigatorContent>
+	</mx:ViewStack>
+	
+</s:Application>

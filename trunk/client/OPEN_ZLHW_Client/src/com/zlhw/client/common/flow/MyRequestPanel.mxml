@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent label="我的请求" xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			xmlns:s="library://ns.adobe.com/flex/spark" 
+			xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="com.zlhw.client.base.ui.*" >
+		<s:layout>
+			<s:VerticalLayout />
+		</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import com.zlhw.client.base.event.CommonArrayListEvent;
+			import com.zlhw.client.base.event.CommonPageEvent;
+			import com.zlhw.client.base.model.Page;
+			
+			import mx.collections.ArrayCollection;
+			
+			private var pageEvent:CommonPageEvent;
+			[Bindable]
+			public var page : Page ;
+			[Bindable]
+			private var myRequest:ArrayCollection = new ArrayCollection([
+				{executionName:"流程1", executionId:"Arizona", 
+					currentType:"Barbara Jennings", currentTaskName:38865, createTime:40000}, 
+				{executionName:"流程2", executionId:"Arizona", 
+					currentType:"Dana Binn", currentTaskName:29885, createTime:30000},  
+				{executionName:"流程2", executionId:"Central California", 
+					currentType:"Joe Smith", currentTaskName:29134, createTime:30000},  
+				{executionName:"流程1", executionId:"Nevada", 
+					currentType:"Bethany Pittman", currentTaskName:52888, createTime:45000},  
+				{executionName:"流程3", executionId:"Northern California", 
+					currentType:"Lauren Ipsum", currentTaskName:38805, createTime:40000}, 
+				{executionName:"流程2", executionId:"Northern California", 
+					currentType:"T.R. Smith", currentTaskName:55498, createTime:40000},  
+				{executionName:"流程1", executionId:"Southern California", 
+					currentType:"Alice Treu", currentTaskName:44985, createTime:45000}, 
+				{executionName:"流程3", executionId:"Southern California", 
+					currentType:"Jane Grove", currentTaskName:44913, createTime:45000}
+			]);
+
+			protected function refresh():void
+			{
+				page = new Page();
+				page.pageSize = 20;
+				page.currentPage=1;
+				var queryCondition:Object=new Object;
+				page.queryCondition = queryCondition;
+				pageEvent=new CommonPageEvent("FlowService","findAllRequestTasks",page);
+				this.dispatchEvent(pageEvent);
+			}
+
+
+			protected function search():void
+			{
+				page = new Page();
+				page.pageSize = 20;
+				page.currentPage=1;
+				var queryCondition:Object=new Object;
+				page.queryCondition = queryCondition;
+				if(startDate.selectedDate!=null)
+				queryCondition.startTime=startDate.selectedDate;
+				if(endDate.selectedDate!=null)
+				queryCondition.endDate=endDate.selectedDate;
+				if(keyword_.text!=null&&keyword_.text!="")
+				queryCondition.excutionkey=keyword_.text;
+				if(excutionType.selectedItem!=null)
+				queryCondition.excutionType=excutionType.selectedItem.value;
+				pageEvent=new CommonPageEvent("FlowService","findAllRequestTasks",page);
+				this.dispatchEvent(pageEvent);
+			}
+
+		]]>
+	</fx:Script>
+
+	<mx:ApplicationControlBar width="100%">
+		<s:Button label="刷新" click="refresh()"></s:Button>
+		<s:Label text="关键字:"/>
+		<s:TextInput id="keyword_"/>
+		<ui:CommonComboBox showDefaultItem="true" id="excutionType" width="60" />
+		<s:Button label="搜索" click="search()" />
+		<s:Label text="流程创建日期:" />
+		<ui:CommonDateField id="startDate" />
+		<s:Label text="—"/>
+		<ui:CommonDateField id="endDate" />
+	</mx:ApplicationControlBar>
+	<mx:AdvancedDataGrid id="myADG"  displayItemsExpanded="true"
+						 width="100%" height="100%" 
+						 initialize="gc.refresh();">  
+		<mx:dataProvider>
+			<mx:GroupingCollection id="gc" source="{myRequest}">
+				<mx:grouping>
+					<mx:Grouping>
+						<mx:GroupingField name="executionName"/>
+					</mx:Grouping>
+				</mx:grouping>
+			</mx:GroupingCollection>
+		</mx:dataProvider> 
+		<mx:columns>
+			<mx:AdvancedDataGridColumn dataField="executionName"  headerText="流程类型" />
+			<mx:AdvancedDataGridColumn dataField="executionId" headerText="流程编号"/>
+			<mx:AdvancedDataGridColumn dataField="currentType" headerText="创建者"/>
+			<mx:AdvancedDataGridColumn dataField="createTime" headerText="创建时间"/>
+			<mx:AdvancedDataGridColumn dataField="createTime" headerText="是否结束"/>
+			<mx:AdvancedDataGridColumn dataField="createTime" headerText="当前任务节点"/>
+			<mx:AdvancedDataGridColumn dataField="createTime" headerText="是否结束"/>
+		</mx:columns>
+	</mx:AdvancedDataGrid>
+	<ui:Pagination pageEvent="{pageEvent}" ></ui:Pagination>
+</s:NavigatorContent>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Struts2Diagram version="2.0">
+  <package name="action" location="0,0" size="0,0">
+    <action name="Catalog" location="0,0" size="0,0">
+      <result name="list" />
+      <result name="update" />
+    </action>
+  </package>
+</Struts2Diagram>
+

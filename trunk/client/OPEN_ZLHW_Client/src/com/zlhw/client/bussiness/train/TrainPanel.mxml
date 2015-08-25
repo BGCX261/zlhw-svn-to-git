@@ -1,0 +1,238 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ui:TabView xmlns:fx="http://ns.adobe.com/mxml/2009" label="证书管理"
+			xmlns:s="library://ns.adobe.com/flex/spark" 
+			xmlns:mx="library://ns.adobe.com/flex/mx" 
+			xmlns:ui="com.zlhw.client.base.ui.*" initialize="init()" >
+	<fx:Script><![CDATA[
+		import com.zlhw.client.base.event.CommonEvent;
+		import com.zlhw.client.base.event.CommonPageEvent;
+		import com.zlhw.client.base.model.Page;
+		import com.zlhw.client.base.modelLocator.CommonModelLocator;
+		import com.zlhw.client.base.ui.DownLoadFile;
+		import com.zlhw.client.bussiness.model.Training;
+		
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.formatters.DateFormatter;
+		
+
+        var  downLoadFile:DownLoadFile=new DownLoadFile();
+		
+		[Bindable]
+		public var pageResultProxy:CommonPageEvent ;
+		[Bindable]
+		public var page:Page;
+		[Bindable]
+		private var trainings:ArrayCollection = new ArrayCollection();
+
+
+        public function init()
+        {
+            return;
+        }// end function
+
+
+        public function doSearch() : void
+        {
+            this.page.currentPage = 1;
+            var _loc_1:Object = new Object();
+            _loc_1.type = "simpleSearch";
+            if (this.startDate.selectedDate == null || this.endDate.selectedDate == null)
+            {
+                Alert.show("必须选择时间段");
+                return;
+            }
+            _loc_1.startDate = this.startDate.selectedDate;
+            _loc_1.endDate = this.endDate.selectedDate;
+            this.page.queryCondition = _loc_1;
+			this.pageResultProxy = new CommonPageEvent("TrainingService", "loadTrainings", this.page);
+			this.pageResultProxy.page=this.page;
+			this.pageResultProxy.dataArray = this.trainings;
+            this.dispatchEvent(this.pageResultProxy);
+            return;
+        }// end function
+
+ 
+
+        public function formatDate(obj:Object, column:DataGridColumn) : String
+        {
+			var dateFormat :DateFormatter = new DateFormatter;
+            return dateFormat.format(obj[column.dataField]);
+        }// end function
+
+
+        public function complexSearch() : void
+        {
+            this.page.currentPage = 1;
+            var _loc_1:Object = new Object();
+            _loc_1.type = "complexSearch";
+            if (this.certificate.text != "")
+            {
+                _loc_1.certificate = this.certificate.text;
+            }
+            if (this.companyName.text != "")
+            {
+                _loc_1.companyName = this.companyName.text;
+            }
+            if (this.safeUserName.text != "")
+            {
+                _loc_1.safeUserName = this.safeUserName.text;
+            }
+            if (this.zsdq.selected)
+            {
+                _loc_1.zsdq = this.zsdqDate.selectedDate;
+            }
+            this.page.queryCondition = _loc_1;
+			this.pageResultProxy = new CommonPageEvent("TrainingService", "loadTrainings", this.page);
+			this.pageResultProxy.page=this.page;
+			this.pageResultProxy.dataArray = this.trainings;
+           this.dispatchEvent(this.pageResultProxy);
+            return;
+        }// end function
+
+
+
+
+        public function advanceSearch(event:MouseEvent) : void
+        {
+            if (CheckBox(event.target).selected)
+            {
+                currentState = "s2";
+            }
+            else
+            {
+                currentState = "s1";
+            }
+            return;
+        }// end function
+
+        public function isFaRen(obj:Object, column:DataGridColumn) : String
+        {
+            var _loc_3:Training = Training(obj);
+            var _loc_4:int = _loc_3.safeUser.type;
+            if (_loc_4 == 0)
+            {
+                return "主要负责人";
+            }
+            if (_loc_4 == 1)
+            {
+                return "安全员";
+            }
+            return "";
+        }// end function
+		
+		private function downLoadXls():void
+		{
+			if(startDate.selectedDate==null||endDate.selectedDate==null){
+				Alert.show("请选择起始与截止日期");
+				return;
+			}
+			var obj:Object = new Object();
+			obj.type = "simpleSearch";
+
+				var dateFormat :DateFormatter = new DateFormatter();
+				dateFormat.formatString="YYYY-MM-DD";
+				var _loc_2:String = CommonModelLocator.getInstance().url + "downloadXls/";
+				var _loc_3:String = _loc_2 + "aaa.xls?"+
+					"type=simpleSearch"+
+					"&startDate="+dateFormat.format(startDate.selectedDate)+
+					"&endDate="+dateFormat.format(endDate.selectedDate);
+				downLoadFile.download(_loc_3);
+		}// end function
+
+        public override function refresh() : void
+        {
+            this.page = new Page();
+            this.page.currentPage = 1;
+            this.page.pageSize = 20;
+            this.pageResultProxy = new CommonPageEvent("TrainingService", "loadTrainings", this.page);
+			this.pageResultProxy.page=this.page;
+            this.pageResultProxy.dataArray = this.trainings;
+            this.dispatchEvent(this.pageResultProxy);
+            return;
+        }// end function
+
+
+
+
+        public function getEducation(obj:Object, column:DataGridColumn) : String
+        {
+            var _loc_3:Training = Training(obj);
+            if (_loc_3.safeUser != null && _loc_3.safeUser.education != null)
+            {
+                return _loc_3.safeUser.education.name;
+            }
+            return "";
+        }// end function
+
+
+
+
+		protected function zsdq_clickHandler(event:MouseEvent):void
+		{
+			if(zsdq.selected){
+				zsdqDate.enabled=true;
+			}else{
+				zsdqDate.enabled=false;
+			}
+		}
+
+    ]]></fx:Script>
+	<ui:states>
+		<s:State name="s1"/>
+		<s:State name="s2"/>
+	</ui:states>
+	<mx:ApplicationControlBar dock="true" width="100%" height="35" verticalAlign="middle">
+		<mx:Label text="起始日期:"/>
+		<ui:CommonDateField id="startDate"/>
+		<mx:Label text="截止日期"/>
+		<ui:CommonDateField id="endDate"/>
+		<mx:Button label="搜索" click="doSearch()"/>
+		<s:CheckBox label="高级搜索" click="advanceSearch(event)"/>
+		<mx:Button label="生成学员名单" click="downLoadXls()"/>
+	</mx:ApplicationControlBar>
+	<mx:HDividedBox width="100%" height="100%">
+		<mx:Panel headerHeight="15" height="100%"  includeIn="s2">
+			<mx:Form>
+				<mx:FormHeading label="高级搜索" />
+				<mx:FormItem   label="证书编号:" >
+					<s:TextInput id="certificate" />
+				</mx:FormItem>
+				<mx:FormItem   label="安全员姓名:" >
+					<s:TextInput id="safeUserName" />
+				</mx:FormItem>
+				<mx:FormItem   label="公司名:" >
+					<s:TextInput id="companyName"  />
+				</mx:FormItem>
+				<mx:FormItem  label="证书到期:"  >
+					<s:CheckBox id="zsdq"  click="zsdq_clickHandler(event)" />
+					<ui:CommonDateField id="zsdqDate" enabled="false"  width="127"/>
+				</mx:FormItem>
+				<mx:FormItem  label="搜索:" >
+					<s:Button label="搜索" click="complexSearch()"/>
+				</mx:FormItem>
+			</mx:Form>
+		</mx:Panel>
+		<mx:VBox id="v1" width="100%" height="100%">
+			<ui:CommonDataGrid id="_TrainPanel_MyDataGrid1" width="100%"  dataProvider='{trainings}' height="{this.height - 75}">
+				<ui:columns>
+					<mx:DataGridColumn dataField="dbId" headerText="序号" />
+					<mx:DataGridColumn dataField="safeUser.name" headerText="姓名" />
+					<mx:DataGridColumn dataField="score" headerText="成绩" />
+					<mx:DataGridColumn dataField="safeUser.sex" headerText="性别" />
+					<mx:DataGridColumn dataField="safeUser.zhiCheng" headerText="职称" />
+					<mx:DataGridColumn headerText="文化程度" labelFunction="getEducation" />
+					<mx:DataGridColumn dataField="safeUser.identityID" headerText="身份证号" />
+					<mx:DataGridColumn dataField="safeUser.company.name" headerText="工作单位名称" />
+					<mx:DataGridColumn dataField="startDate" headerText="初次发证日期" labelFunction="formatDate" />
+					<mx:DataGridColumn dataField="endDate" headerText="换证日期" labelFunction="formatDate" />
+					<mx:DataGridColumn dataField="certificate" headerText="证书编号" />
+					<mx:DataGridColumn dataField="safeUser.zhiWu" headerText="现任职务" />
+					<mx:DataGridColumn dataField="safeUser.type" headerText="单位类型" />
+				</ui:columns>
+			</ui:CommonDataGrid>
+			<ui:Pagination id="pagination" pageEvent="{pageResultProxy}"/>
+		</mx:VBox>
+	</mx:HDividedBox>
+
+</ui:TabView>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" xmlns:view="com.jnlxc.client.base.view.*" xmlns:ui="com.zlhw.client.base.ui.*"
+			   initialize="group1_initializeHandler(event)">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import com.zlhw.client.example.TestModel;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			[Bindable]
+			var dataArray : ArrayCollection = new ArrayCollection();
+			
+			protected function group1_initializeHandler(event:FlexEvent):void
+			{
+				var o1 :TestModel  = new TestModel;
+				var o2 :TestModel  = new TestModel;
+				o1.column2 = "o1column2";
+				o2.column1 = "o2column1";
+				o2.column2 = "o2column2";
+				o1.selected = 1;
+				dataArray.addItem(o1);
+				dataArray.addItem(o2);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		
+	</fx:Declarations>
+	<ui:CommonComboBox showDefaultItem="true"  >
+		<ui:dataProvider>
+			<s:ArrayList>
+				<fx:String>Red</fx:String>
+				<fx:String>Orange</fx:String>
+				<fx:String>Yellow</fx:String>
+				<fx:String>Blue</fx:String>
+				<fx:String>Green</fx:String>
+			</s:ArrayList>
+		</ui:dataProvider>
+	</ui:CommonComboBox>
+	
+</s:Application>

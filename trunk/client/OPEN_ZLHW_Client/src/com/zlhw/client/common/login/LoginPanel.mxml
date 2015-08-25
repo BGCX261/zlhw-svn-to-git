@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:CommonTitleWindow borderColor="#B8B8C4" borderAlpha="0.7" 
+					  xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+   						title="顺泰安全管理平台" xmlns:ui="com.zlhw.client.base.ui.*" >
+	<ui:layout>
+		<s:VerticalLayout verticalAlign="middle" horizontalAlign="center"/>
+	</ui:layout>
+
+    <fx:Script>
+    <![CDATA[  	
+		import com.zlhw.client.common.model.Admin;
+		import mx.events.CloseEvent;
+		import mx.events.FlexEvent;
+     
+         
+		private function login() : void//添加联系人的处理函数
+	   {
+	      var user : Admin = new Admin();//定义ContactVO类实例.ContactVO类为自定义的数据模型.
+	      /*初始化变量数据*/
+		  user.account = account.text;
+		  user.password = password.text;
+			//创建AddContactEvent类实例.AddContactEvent类为自定义的事件.
+  			var event : LoginEvent = new LoginEvent( "AdminService","login",user );
+			this.dispatchEvent(event);
+	   }
+		private function reset() : void
+		{
+			this.account.text = "";
+			this.password.text = "";
+		}
+
+		public override function exit():void
+		{
+//			stage.nativeWindow.close();
+		}
+		
+		public override function closeWindow(event:CloseEvent):void{
+//			stage.nativeWindow.close();
+		}
+
+		
+		protected function password_enterHandler(event:FlexEvent):void
+		{
+			login();
+		}
+
+    ]]>
+    </fx:Script>
+    	<mx:Spacer height="10"/>
+			<mx:Form >
+				<mx:FormHeading label="   用户登陆"/>
+				<mx:FormItem label="用户账户:">
+					<s:TextInput id="account"/>
+				</mx:FormItem>
+				<mx:FormItem label="用户密码:">
+					<s:TextInput displayAsPassword="true" id="password" enter="password_enterHandler(event)"/>
+				</mx:FormItem>
+			<mx:Spacer height="40"/>
+	        <s:HGroup width="95%" horizontalAlign="center">
+		        <s:Button label="确定"  click="login()"/><!--“添加”按钮-->
+				<s:Button label="重置"  click="reset()"/><!--“添加”按钮-->
+				<s:Button label="退出" click="exit()"/>
+	    	</s:HGroup>
+			</mx:Form>
+	<mx:Spacer height="15"/>
+</ui:CommonTitleWindow>

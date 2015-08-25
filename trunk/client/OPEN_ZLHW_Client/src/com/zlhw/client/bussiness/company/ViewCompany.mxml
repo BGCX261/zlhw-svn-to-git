@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ui:CommonTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"  title="查看培训公司"
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+					  xmlns:ui="com.zlhw.client.base.ui.*" initialize="init()">
+	<fx:Script><![CDATA[
+		import com.zlhw.client.base.event.CommonArrayListEvent;
+		import com.zlhw.client.base.event.CommonEvent;
+		import com.zlhw.client.base.event.CommonRefreshEvent;
+		import com.zlhw.client.bussiness.model.Company;
+		import com.zlhw.client.bussiness.model.Town;
+		import com.zlhw.client.common.model.DataDict;
+		
+		import flash.events.*;
+		import flash.utils.*;
+		
+		import mx.binding.*;
+		import mx.collections.*;
+		import mx.collections.ArrayCollection;
+		import mx.containers.*;
+		import mx.controls.*;
+		import mx.core.*;
+		import mx.events.*;
+		
+		public var hasAgentList:ArrayCollection = new ArrayCollection([{label:"请选择", value:3}, {label:"有", value:1}, {label:"无", value:0}]);
+		public var safeProvideList:ArrayCollection = new ArrayCollection([{label:"请选择", value:3}, {label:"有", value:1}, {label:"无", value:0}]);
+		[Bindable]
+		public var townList:ArrayCollection = new ArrayCollection();
+		[Bindable]
+		public var companyTypeList:ArrayCollection = new ArrayCollection();
+		[Bindable]
+		public var natureList:ArrayCollection = new ArrayCollection();
+		[Bindable]
+		public var company:Company;
+		
+		
+		public function save() : void
+		{
+			var copyCompany:Company;
+			copyCompany = new Company();
+			this.company.assignTo(copyCompany);
+			copyCompany.name = this.companyName.text;
+			copyCompany.town = Town(this.town.selectedItem);
+			copyCompany.fax = this.fax.text;
+			if (this.hasAgent.selectedItem.value != 99)
+			{
+				copyCompany.hasAgent = this.hasAgent.selectedItem.value;
+			}
+			else
+			{
+				copyCompany.hasAgent = null;
+			}
+			if (this.safeProvide.selectedItem.value != 99)
+			{
+				copyCompany.safeProvide = this.safeProvide.selectedItem.value;
+			}
+			else
+			{
+				copyCompany.safeProvide = null;
+			}
+			this.company.phone = this.phone.text;
+			copyCompany.guimo = int(this.guimo.text);
+			if (DataDict(this.companyType.selectedItem).dbId != 0)
+			{
+				copyCompany.type = DataDict(this.companyType.selectedItem);
+			}
+			else
+			{
+				copyCompany.type = null;
+			}
+			if (DataDict(this.nature.selectedItem).dbId != 0)
+			{
+				copyCompany.nature = DataDict(this.nature.selectedItem);
+			}
+			else
+			{
+				copyCompany.nature = null;
+			}
+			copyCompany.address = this.address.text;
+			this.enabled = false;
+			var proxy:CommonEvent = new CommonEvent("CompanyService", "update", copyCompany);
+			proxy.successFunction = function (param1:Object)
+			{
+				copyCompany.assignTo(company);
+				successExit(param1);
+				return;
+			}// end function
+				;
+			proxy.failFunction = faultExit;
+			this.dispatchEvent(proxy);
+			return;
+		}// end function
+		
+		public function init() : void
+		{
+			var defaultEncoding:DataDict;
+			defaultEncoding = new DataDict();
+			defaultEncoding.name = "请选择";
+			defaultEncoding.dbId = 0;
+			var p1:CommonArrayListEvent = new CommonArrayListEvent("DataDictService", "findAllByCode", "C");
+			p1.dataArray = this.natureList;
+			p1.successFunction = function (_watcherSetupUtil:Object) : void
+			{
+				natureList.addItemAt(defaultEncoding, 0);
+				nature.selectedIndex = 0;
+				return;
+			}// end function
+				;
+			this.dispatchEvent(p1);
+			var p2:CommonArrayListEvent = new CommonArrayListEvent("DataDictService", "findAllByCode", "D");
+			p2.dataArray = this.companyTypeList;
+			p2.successFunction = function (_watcherSetupUtil:Object) : void
+			{
+				companyTypeList.addItemAt(defaultEncoding, 0);
+				companyType.selectedIndex = 0;
+				return;
+			};
+			this.dispatchEvent(p2);
+			var p3:CommonArrayListEvent = new CommonArrayListEvent("TownService", "findAll");
+			p3.dataArray = this.townList;
+			this.dispatchEvent(p3);
+			this.dispatchEvent(new CommonRefreshEvent(this.company));
+			return;
+		}// end function
+		
+		
+	]]></fx:Script>
+	
+	<mx:Form>
+		<mx:HBox>
+			<mx:VBox>
+				<mx:FormItem label="名称:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="companyName" text="{company.name}"/>
+				</mx:FormItem>
+				<mx:FormItem label="所属乡镇:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="town" labelField="name" selectedValue="{company.town}" selectedKey="dbId" dataProvider='{townList}'/>
+				</mx:FormItem>
+				<mx:FormItem label="传真:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="fax" restrict="0-9\\-" text="{company.fax}"/>
+				</mx:FormItem>
+				<mx:FormItem label="有无安全机构:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="hasAgent" labelField="label" selectedValue="{company.hasAgent}" selectedKey="value"  dataProvider='{hasAgentList}'/>
+				</mx:FormItem>
+				<mx:FormItem label="安全人员配备:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="safeProvide" labelField="label" selectedValue="{company.safeProvide}" selectedKey="value" dataProvider='{safeProvideList}'/>
+				</mx:FormItem>
+			</mx:VBox>
+			<mx:VBox>
+				<mx:FormItem label="法人代表:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="_EditCompany_TextInput3" enabled="false" text="{company.representative.name}"/>
+				</mx:FormItem>
+				<mx:FormItem label="电话:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="phone" restrict="0-9\\-" text="{company.phone}"/>
+				</mx:FormItem>
+				<mx:FormItem label="企业规模:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="guimo" maxChars="5" restrict="0-9" text="{company.guimo}"/>
+				</mx:FormItem>
+				<mx:FormItem label="单位类型:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="companyType" labelField="name" selectedValue="{company.type.dbId}" selectedKey="dbId" dataProvider='{companyTypeList}'/>
+				</mx:FormItem>
+				<mx:FormItem label="单位性质:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="nature" labelField="name" selectedValue="{company.nature.dbId}" selectedKey="dbId" dataProvider='{natureList}'/>
+				</mx:FormItem>
+			</mx:VBox>
+		</mx:HBox>
+		<mx:FormItem label="公司地址:" width="100%" labelWidth="60" horizontalAlign="right">
+			<mx:TextInput id="address" width="100%" text="{company.address}"/>
+		</mx:FormItem>
+		<mx:HBox width="100%" horizontalAlign="center">
+			<mx:Button label="取消" click="{exit();}"/>
+		</mx:HBox>
+	</mx:Form>
+	
+</ui:CommonTitleWindow>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:TabView xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			xmlns:s="library://ns.adobe.com/flex/spark" 
+			xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="com.zlhw.client.base.ui.*"
+			label="角色管理" initialize="initHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+
+			public var roleAction : RoleAction = new RoleAction;
+			public var authorDetailStatusMap : Object = new Object;
+			protected function initHandler(event:FlexEvent):void
+			{
+				roleAction.rolePanel =this;
+				roleAction.init();
+				roleAction.loadRoleList();
+			}
+			private function statusDisplay(item:Object, column:DataGridColumn):String{
+				return authorDetailStatusMap[item[column.dataField]];
+			}
+
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:HGroup>
+	<ui:CRUDButtonBar  itemName="角色"
+					   addClick="this.roleAction.roleAdd()" 
+					   editClick="this.roleAction.roleEdit()" 
+					   deleteClick="optConfirm(this.roleAction.deleteRole)"/>
+	<s:Button label="分配权限明细" click="this.roleAction.authorDistribute()" />
+	</s:HGroup>
+	<s:HGroup width="100%" height="100%">
+		<mx:List dataProvider="{roleAction.roleList}" labelField="name" height="100%"  itemClick="this.roleAction.roleClick(event)" />
+		<mx:DataGrid height="100%" width="100%" dataProvider="{roleAction.authorDetailList}" itemClick="this.roleAction.authorDetailClick(event)" >
+			<mx:columns>
+				<mx:DataGridColumn headerText="编码" dataField="dbId" />
+				<mx:DataGridColumn headerText="名称" dataField="name"/>
+				<mx:DataGridColumn headerText="包路径" dataField="path"/>
+				<mx:DataGridColumn headerText="bean名称"   dataField="beanName"/>
+				<mx:DataGridColumn headerText="bean函数"   dataField="beanFunction"/>
+				<mx:DataGridColumn headerText="当前状态"   dataField="status" labelFunction="statusDisplay" />
+				<mx:DataGridColumn headerText="所属权限"   dataField="author.name"/>
+			</mx:columns>
+		</mx:DataGrid>
+	</s:HGroup>
+</ui:TabView>

@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ui:CommonTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"  title="添加培训公司"
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+					  xmlns:ui="com.zlhw.client.base.ui.*" initialize="init()">
+	
+	<fx:Script><![CDATA[
+		import com.zlhw.client.base.event.CommonArrayAddEvent;
+		import com.zlhw.client.base.event.CommonArrayListEvent;
+		import com.zlhw.client.bussiness.model.Company;
+		import com.zlhw.client.bussiness.model.Town;
+		import com.zlhw.client.common.model.DataDict;
+		
+		import flash.events.*;
+		import flash.utils.*;
+		
+		import mx.binding.*;
+		import mx.collections.*;
+		import mx.containers.*;
+		import mx.controls.*;
+		import mx.core.*;
+		import mx.events.*;
+
+        public var  companys:ArrayCollection;
+		public var hasAgentList:ArrayCollection = new ArrayCollection([{label:"请选择", value:99}, {label:"有", value:1}, {label:"无", value:0}]);
+		public var safeProvideList:ArrayCollection = new ArrayCollection([{label:"请选择", value:99}, {label:"有", value:1}, {label:"无", value:0}]);
+		[Bindable]
+		public var townList:ArrayCollection = new ArrayCollection();
+		[Bindable]
+		public var companyTypeList:ArrayCollection = new ArrayCollection();
+		[Bindable]
+		public var natureList:ArrayCollection = new ArrayCollection();
+
+        public function save() : void
+        {
+            var _loc_1:Company = new Company();
+            _loc_1.name = this.companyName.text;
+            _loc_1.town = Town(this.town.selectedItem);
+            _loc_1.fax = this.fax.text;
+            if (this.hasAgent.selectedItem.value != 99)
+            {
+                _loc_1.hasAgent = this.hasAgent.selectedItem.value;
+            }
+            if (this.safeProvide.selectedItem.value != 99)
+            {
+                _loc_1.safeProvide = this.safeProvide.selectedItem.value;
+            }
+            _loc_1.phone = this.phone.text;
+            _loc_1.guimo = int(this.guimo.text);
+            if (DataDict(this.companyType.selectedItem).dbId != 0)
+            {
+                _loc_1.type = DataDict(this.companyType.selectedItem);
+            }
+            if (DataDict(this.nature.selectedItem).dbId != 0)
+            {
+                _loc_1.nature = DataDict(this.nature.selectedItem);
+            }
+            _loc_1.address = this.address.text;
+            this.enabled = false;
+            var _loc_2:CommonArrayAddEvent = new CommonArrayAddEvent("CompanyService", "create", _loc_1,faren.text);
+            _loc_2.dataArray = this.companys;
+            _loc_2.successFunction = successExit;
+            _loc_2.failFunction = faultExit;
+			this.dispatchEvent(_loc_2);
+            return;
+        }// end function
+
+
+        public function init() : void
+        {
+			
+            var defaultEncoding:DataDict;
+            defaultEncoding = new DataDict();
+            defaultEncoding.name = "请选择";
+            defaultEncoding.dbId = 0;
+            var p1:CommonArrayListEvent = new CommonArrayListEvent("DataDictService", "findAllByCode", "C");
+            p1.dataArray = this.natureList;
+            p1.successFunction = function (_watcherSetupUtil:Object) : void
+            {
+                natureList.addItemAt(defaultEncoding, 0);
+                nature.selectedIndex = 0;
+                return;
+            }// end function
+            ;
+			this.dispatchEvent(p1);
+            var p2:CommonArrayListEvent = new CommonArrayListEvent("DataDictService", "findAllByCode", "D");
+            p2.dataArray = this.companyTypeList;
+            p2.successFunction = function (_watcherSetupUtil:Object) : void
+            {
+                companyTypeList.addItemAt(defaultEncoding, 0);
+                companyType.selectedIndex = 0;
+                return;
+            }// end function
+            ;
+            this.dispatchEvent(p2);
+            var p3:CommonArrayListEvent = new CommonArrayListEvent("TownService", "findAll");
+            p3.dataArray = this.townList;
+            this.dispatchEvent(p3);
+            return;
+        }// end function
+    ]]></fx:Script>
+
+	<mx:Form>
+		<mx:HBox>
+			<mx:VBox>
+				<mx:FormItem label="名称:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="companyName"/>
+				</mx:FormItem>
+				<mx:FormItem label="所属乡镇:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="town" labelField="name" dataProvider='{townList}'/>
+				</mx:FormItem>
+				<mx:FormItem label="传真:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="fax" restrict="0-9\\-"/>
+				</mx:FormItem>
+				<mx:FormItem label="有无安全机构:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="hasAgent" labelField="label" dataProvider='{hasAgentList}'/>
+				</mx:FormItem>
+				<mx:FormItem label="安全人员配备:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="safeProvide" labelField="label" dataProvider='{safeProvideList}'/>
+				</mx:FormItem>
+			</mx:VBox>
+			<mx:VBox>
+				<mx:FormItem label="法人代表:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="faren"/>
+				</mx:FormItem>
+				<mx:FormItem label="电话:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="phone" restrict="0-9\\-"/>
+				</mx:FormItem>
+				<mx:FormItem label="企业规模:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="guimo"/>
+				</mx:FormItem>
+				<mx:FormItem label="单位类型:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="companyType" labelField="name" dataProvider='{companyTypeList}'/>
+				</mx:FormItem>
+				<mx:FormItem label="单位性质:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="nature" labelField="name" dataProvider='{natureList}'/>
+				</mx:FormItem>
+			</mx:VBox>
+		</mx:HBox>
+		<mx:FormItem label="公司地址:" width="100%" labelWidth="60" horizontalAlign="right">
+			<mx:TextInput id="address" width="100%"/>
+		</mx:FormItem>
+		<mx:HBox width="100%" horizontalAlign="center">
+			<mx:Button label="保存" click="save()"/>
+			<mx:Button label="取消" click="exit()"/>
+		</mx:HBox>
+	</mx:Form>
+
+</ui:CommonTitleWindow>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:CommonTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:ui="com.zlhw.client.base.ui.*"
+		 >
+	<ui:layout>
+		<s:VerticalLayout/>
+	</ui:layout>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			public var roleAction : RoleAction;
+			public var treeList : ArrayCollection = new ArrayCollection;
+
+		]]>
+	</fx:Script>
+	<ui:CommonTree showCheckBox="true"  dataProvider="{treeList}" />
+	<s:Button click="roleAction.saveAuthorDetailForRole(treeList)" label="保存" />
+</ui:CommonTitleWindow>

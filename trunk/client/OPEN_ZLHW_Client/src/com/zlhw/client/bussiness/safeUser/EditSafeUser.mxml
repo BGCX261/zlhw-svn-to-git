@@ -1,0 +1,317 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ui:CommonTitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"  title="修改安全员"
+			xmlns:s="library://ns.adobe.com/flex/spark" 
+			xmlns:mx="library://ns.adobe.com/flex/mx" 
+			xmlns:ui="com.zlhw.client.base.ui.*" 
+			xmlns:code="http://code.google.com/p/flexlib/"
+			initialize="init()">
+	
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		.linkButtonWindowShade {
+			headerClass:ClassReference('mx.controls.LinkButton');
+			header-style-name: linkButtonStyle;
+			
+			drop-shadow-enabled:true;
+			
+			corner-radius:10;
+			border-style:solid;
+			
+			background-color:#efefef;
+			background-alpha:.7;
+		}         
+		
+		.linkButtonStyle {
+			corner-radius:10;	
+			fill-alphas:1,1;
+			padding-left:10;
+		}
+		
+		mx|Form {
+			padding-top:0;
+			padding-bottom:5;	
+		}
+	</fx:Style>
+	
+	<fx:Script><![CDATA[
+		import com.zlhw.client.base.event.CommonArrayListEvent;
+		import com.zlhw.client.base.event.CommonEvent;
+		import com.zlhw.client.base.event.CommonRefreshEvent;
+		import com.zlhw.client.bussiness.model.SafeUser;
+		import com.zlhw.client.common.model.DataDict;
+		
+		import flash.events.*;
+		import flash.utils.*;
+		
+		import flexlib.containers.*;
+		
+		import mx.binding.*;
+		import mx.collections.*;
+		import mx.containers.*;
+		import mx.controls.*;
+		import mx.core.*;
+		import mx.events.*;
+
+		[Bindable]
+		public var safeUser:SafeUser;
+		[Bindable]
+		public var healthList = new ArrayCollection();
+		[Bindable]
+		public var educationList = new ArrayCollection();
+		[Bindable]
+		public var nationalList = new ArrayCollection();
+		public var sexs = new ArrayCollection([{label:"请选择", value:99}, {label:"男", value:1}, {label:"女", value:0}]);
+		public var safeTypeList = new ArrayCollection([{label:"安全员", value:1}, {label:"法人", value:0}]);
+		public var phoneTypeList = new ArrayCollection([{label:"请选择", value:99}, {label:"移动", value:0}, {label:"联通", value:1}, {label:"电信", value:2}]);
+
+        public function init() : void
+        {
+            var defaultEncoding:DataDict;
+            defaultEncoding = new DataDict();
+            defaultEncoding.name = "请选择";
+            defaultEncoding.dbId = 0;
+            var p1:CommonArrayListEvent = new CommonArrayListEvent("DataDictService", "findAllByCode", "B");
+            p1.dataArray = this.healthList;
+            p1.successFunction = function (_watcherSetupUtil:Object) : void
+            {
+                healthList.addItemAt(defaultEncoding, 0);
+                health.selectedIndex = 0;
+                return;
+            }// end function
+            ;
+            this.dispatchEvent(p1);
+            var p2:CommonArrayListEvent = new CommonArrayListEvent("DataDictService", "findAllByCode", "A");
+            p2.dataArray = this.educationList;
+            p2.successFunction = function (_watcherSetupUtil:Object) : void
+            {
+                educationList.addItemAt(defaultEncoding, 0);
+                education.selectedIndex = 0;
+                return;
+            }// end function
+            ;
+            this.dispatchEvent(p2);
+            var p3:CommonArrayListEvent = new CommonArrayListEvent("DataDictService", "findAllByCode", "E");
+            p3.dataArray = this.nationalList;
+            p3.successFunction = function (_watcherSetupUtil:Object) : void
+            {
+                nationalList.addItemAt(defaultEncoding, 0);
+                national.selectedIndex = 0;
+                return;
+            }// end function
+            ;
+            this.dispatchEvent(p3);
+            this.dispatchEvent(new CommonRefreshEvent(this.safeUser));
+            return;
+        }// end function
+
+        public function save() : void
+        {
+            var copySafeUser:SafeUser;
+            copySafeUser = new SafeUser();
+            this.safeUser.assignTo(copySafeUser);
+            copySafeUser.address = this.address.text;
+            copySafeUser.identityID = this.identityID.text;
+            copySafeUser.company = this.safeUser.company;
+            if (DataDict(this.education.selectedItem).dbId != 0)
+            {
+                copySafeUser.education = DataDict(this.education.selectedItem);
+            }
+            else
+            {
+                copySafeUser.education = null;
+            }
+            copySafeUser.email = this.email.text;
+            copySafeUser.govTel = this.govTel.text;
+            if (DataDict(this.health.selectedItem).dbId != 0)
+            {
+                copySafeUser.health = DataDict(this.health.selectedItem);
+            }
+            else
+            {
+                copySafeUser.health = null;
+            }
+            copySafeUser.name = this.safeUserName.text;
+            if (DataDict(this.national.selectedItem).dbId != 0)
+            {
+                copySafeUser.national = DataDict(this.national.selectedItem);
+            }
+            else
+            {
+                copySafeUser.national = null;
+            }
+            copySafeUser.phone1 = this.phone1.text;
+            copySafeUser.phone2 = this.phone2.text;
+            if (this.phone1Type.selectedItem.value != 99)
+            {
+                copySafeUser.phone1Type = this.phone1Type.selectedItem.value;
+            }
+            else
+            {
+                copySafeUser.phone1Type = null;
+            }
+            if (this.phone2Type.selectedItem.value != 99)
+            {
+                copySafeUser.phone2Type = this.phone2Type.selectedItem.value;
+            }
+            else
+            {
+                copySafeUser.phone2Type = null;
+            }
+            copySafeUser.qq = this.qq.text;
+            copySafeUser.remarks = this.remarks.text;
+            copySafeUser.school = this.school.text;
+            if (this.sex.selectedItem.value != 99)
+            {
+                copySafeUser.sex = String(this.sex.selectedItem.label);
+            }
+            else
+            {
+                copySafeUser.sex = null;
+            }
+            copySafeUser.telphone = this.telphone.text;
+            copySafeUser.type = int(this.safeType.selectedItem.value);
+            copySafeUser.zhiCheng = this.zhicheng.text;
+            copySafeUser.zhiWu = this.zhiwu.text;
+            this.enabled = false;
+            var proxy:CommonEvent = new CommonEvent("SafeUserService", "update", copySafeUser);
+            proxy.successFunction = function (param1:Object)
+            {
+                copySafeUser.assignTo(safeUser);
+                successExit(param1);
+                return;
+            }// end function
+            ;
+            proxy.failFunction = faultExit;
+            this.dispatchEvent(proxy);
+            return;
+        }// end function
+
+        public function phone1_changeHandler(event:Event) : void
+        {
+            if (this.phone1.text.length >= 3)
+            {
+                this.phone1Type.selectedValue = this.getLineType(this.phone1.text);
+            }
+            return;
+        }// end function
+
+        public override function successExit(_watcherSetupUtil:Object) : void
+        {
+            this.enabled = true;
+            exit();
+            this.dispatchEvent(new CommonRefreshEvent(this.safeUser.company));
+            return;
+        }// end function
+
+        public function getLineType(phone1Type:String) : int
+        {
+            var _loc_2:* = int(phone1Type.substr(0, 3));
+            if (_loc_2 == 134 || _loc_2 == 135 || _loc_2 == 136 || _loc_2 == 137 || _loc_2 == 138 || _loc_2 == 139 || _loc_2 == 147 || _loc_2 == 150 || _loc_2 == 151 || _loc_2 == 152 || _loc_2 == 157 || _loc_2 == 158 || _loc_2 == 159 || _loc_2 == 187 || _loc_2 == 188 || _loc_2 == 136 || _loc_2 == 136 || _loc_2 == 136)
+            {
+                return 0;
+            }
+            if (_loc_2 == 130 || _loc_2 == 131 || _loc_2 == 132 || _loc_2 == 155 || _loc_2 == 156 || _loc_2 == 185 || _loc_2 == 186)
+            {
+                return 1;
+            }
+            if (_loc_2 == 133 || _loc_2 == 153 || _loc_2 == 180 || _loc_2 == 189)
+            {
+                return 2;
+            }
+            return 99;
+        }// end function
+
+        public function ___EditSafeUser_MyPanel1_initialize(event:FlexEvent) : void
+        {
+            this.init();
+            return;
+        }// end function
+
+        public function phone2_changeHandler(event:Event) : void
+        {
+            if (this.phone2.text.length >= 3)
+            {
+                this.phone2Type.selectedValue = this.getLineType(this.phone2.text);
+            }
+            return;
+        }// end function
+    ]]></fx:Script>
+
+	<mx:Form>
+		<mx:HBox>
+			<mx:VBox>
+				<mx:FormItem label="姓名:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="safeUserName" text="{safeUser.name}"/>
+				</mx:FormItem>
+				<mx:FormItem label="单位名称:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="_EditSafeUser_TextInput2" editable="false" text="{safeUser.company.name}"/>
+				</mx:FormItem>
+				<mx:FormItem label="性别:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="sex" labelField="label"  selectedValue="{safeUser.sex}" selectedKey="value" dataProvider='{sexs}'/>
+				</mx:FormItem>
+				<mx:FormItem label="个人地址:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="address" text="{safeUser.address}"/>
+				</mx:FormItem>
+				<mx:FormItem label="民族:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="national" labelField="name" selectedValue="{safeUser.national.dbId}" selectedKey="dbId"  dataProvider='{nationalList}'/>
+				</mx:FormItem>
+				<mx:FormItem label="手机1" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="phone1" restrict="0-9" maxChars="11" change="{this.phone1_changeHandler(event);}" text="{safeUser.phone1}"/>
+				</mx:FormItem>
+				<mx:FormItem label="手机2" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="phone2" restrict="0-9" maxChars="11" change="{this.phone2_changeHandler(event);}" text="{safeUser.phone2}"/>
+				</mx:FormItem>
+				<mx:FormItem label="qq号码:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="qq" restrict="0-9" text="{safeUser.qq}"/>
+				</mx:FormItem>
+				<mx:FormItem label="政府网:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="govTel" restrict="0-9\\-" text="{safeUser.govTel}"/>
+				</mx:FormItem>
+				<mx:FormItem label="职称:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="zhicheng" text="{safeUser.zhiCheng}"/>
+				</mx:FormItem>
+			</mx:VBox>
+			<mx:VBox>
+				<mx:FormItem label="用户类型:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="safeType" selectedValue="{safeUser.type}" selectedKey="value" dataProvider='{safeTypeList}'/>
+				</mx:FormItem>
+				<mx:FormItem label="身份证号:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="identityID" restrict="0-9X" text="{safeUser.identityID}"/>
+				</mx:FormItem>
+				<mx:FormItem label="毕业学校:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="school" text="{safeUser.school}"/>
+				</mx:FormItem>
+				<mx:FormItem label="健康状况:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="health" labelField="name" selectedKey="dbId" selectedValue="{safeUser.health.dbId}" dataProvider='{healthList}'/>
+				</mx:FormItem>
+				<mx:FormItem label="文化程度:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="education" labelField="name" selectedKey="dbId" selectedValue="{safeUser.education.dbId}" dataProvider='{educationList}'/>
+				</mx:FormItem>
+				<mx:FormItem label="手机1入网:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="phone1Type" selectedValue="{safeUser.phone1Type}" selectedKey="value" dataProvider='{phoneTypeList}'/>
+				</mx:FormItem>
+				<mx:FormItem label="手机2入网:" labelWidth="60" horizontalAlign="right">
+					<ui:CommonComboBox id="phone2Type" selectedValue="{safeUser.phone2Type}" selectedKey="value" dataProvider='{phoneTypeList}'/>
+				</mx:FormItem>
+				<mx:FormItem label="Email:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="email" text="{safeUser.email}"/>
+				</mx:FormItem>
+				<mx:FormItem label="家庭电话:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="telphone" restrict="0-9\\-" text="{safeUser.telphone}"/>
+				</mx:FormItem>
+				<mx:FormItem label="职务:" labelWidth="60" horizontalAlign="right">
+					<mx:TextInput id="zhiwu" text="{safeUser.zhiWu}"/>
+				</mx:FormItem>
+			</mx:VBox>
+		</mx:HBox>
+		<code:WindowShade tabChildren="false" styleName="linkButtonWindowShade" label="主要学习与工作简历" width="100%" opened="false" horizontalAlign="center">
+			<mx:RichTextEditor id="remarks" title="主要学习与工作简历" width="100%" height="300" text="{safeUser.remarks}"/>
+		</code:WindowShade>
+		<mx:HBox width="100%" horizontalAlign="center">
+			<ui:PermissionButton label="保存" click="save()"/>
+			<ui:PermissionButton label="取消" click="exit()"/>
+		</mx:HBox>
+	</mx:Form>
+
+</ui:CommonTitleWindow>

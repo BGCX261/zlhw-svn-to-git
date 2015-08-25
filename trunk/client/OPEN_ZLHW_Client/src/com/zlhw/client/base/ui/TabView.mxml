@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%" height="100%">
+	<s:layout>
+		<s:VerticalLayout gap="0"/>
+	</s:layout>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			public function refresh():void{
+			}
+			/**
+			 * 操作确认
+			 * */
+			public function optConfirm(method : Function,...parameters):void{
+				Alert.okLabel="确定";   
+				Alert.cancelLabel="取消";    
+				Alert.show("你确定要执行操作吗？","操作确认",1|2,this,function(event){
+					if(event.detail==Alert.YES){   
+						//如果有传入的回调方法,则执行
+						if(method!=null){
+							method.apply(this,parameters);
+						}
+					}else if(event.detail==Alert.NO){   
+						return; 
+					}  
+					
+				});
+			}
+		]]>
+	</fx:Script>
+</s:NavigatorContent>

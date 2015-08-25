@@ -1,0 +1,774 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ui:TabView xmlns:fx="http://ns.adobe.com/mxml/2009"  label="安全员管理"
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" 
+					  xmlns:ui="com.zlhw.client.base.ui.*" initialize="init()" currentState="s1">
+
+	<fx:Script><![CDATA[
+		import com.zlhw.client.base.event.CommonArrayDeleteEvent;
+		import com.zlhw.client.base.event.CommonArrayListEvent;
+		import com.zlhw.client.base.event.CommonPageEvent;
+		import com.zlhw.client.base.event.OperateRendererEvent;
+		import com.zlhw.client.base.model.Page;
+		import com.zlhw.client.base.ui.CommonDateField;
+		import com.zlhw.client.bussiness.model.Company;
+		import com.zlhw.client.bussiness.model.SafeUser;
+		import com.zlhw.client.bussiness.model.Town;
+		import com.zlhw.client.bussiness.model.TrainDetail;
+		import com.zlhw.client.bussiness.model.Training;
+		import com.zlhw.client.bussiness.train.EditTrain;
+		import com.zlhw.client.bussiness.train.EditTrainDetail;
+		import com.zlhw.client.bussiness.train.SaveTrain;
+		import com.zlhw.client.common.model.DataDict;
+		
+		import flash.events.*;
+		import flash.utils.*;
+		
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.controls.DateField;
+		import mx.core.UIComponent;
+		import mx.events.CloseEvent;
+		import mx.events.ListEvent;
+		import mx.formatters.DateFormatter;
+	
+		
+		[Bindable]
+		public var pageResultProxy:CommonPageEvent ;
+		[Bindable]
+		public var page:Page;
+		
+		public var type:int=1;
+
+
+		[Bindable]
+		public var safeUsers:ArrayCollection = new ArrayCollection();
+		[Bindable]
+		public var trains:ArrayCollection = new ArrayCollection();
+		[Bindable]
+		public var trainDetails:ArrayCollection = new ArrayCollection();
+		public var hasAgentList:ArrayCollection = new ArrayCollection([{label:"请选择", value:99}, {label:"有", value:1}, {label:"无", value:0}]);
+		public var safeProvideList:ArrayCollection = new ArrayCollection([{label:"请选择", value:99}, {label:"有", value:1}, {label:"无", value:0}]);
+		public var hasTrainedList:ArrayCollection = new ArrayCollection([{label:"请选择", value:99}, {label:"是", value:1}, {label:"否", value:0}]);
+		public var zsdqList:ArrayCollection = new ArrayCollection([{label:"请选择", value:99}, {label:"已到期", value:1}, {label:"未到期", value:0}]);
+		public var sexs:ArrayCollection = new ArrayCollection([{label:"请选择", value:99}, {label:"男", value:1}, {label:"女", value:0}]);
+		public var safeTypeList:ArrayCollection = new ArrayCollection([{label:"请选择", value:99}, {label:"安全员", value:1}, {label:"法人", value:0}]);
+		public var phoneTypeList:ArrayCollection = new ArrayCollection([{label:"请选择", value:99}, {label:"移动", value:0}, {label:"联通", value:1}, {label:"电信", value:2}]);
+		[Bindable]
+		public var townList:ArrayCollection = new ArrayCollection();
+		[Bindable]
+		public var companyTypeList:ArrayCollection = new ArrayCollection();
+		[Bindable]
+		public var natureList:ArrayCollection = new ArrayCollection();
+		[Bindable]
+		public var nationalList:ArrayCollection = new ArrayCollection();
+
+
+
+
+        public function editTrainDetail(event:ListEvent) : void
+        {
+            var _loc_2:TrainDetail = TrainDetail(event.itemRenderer.data);
+            var _loc_3:EditTrainDetail = new EditTrainDetail();
+            _loc_3.trainDetail = _loc_2;
+            _loc_3.popUp();
+            return;
+        }// end function
+
+
+
+        public function removeSafeUser2(evt:OperateRendererEvent) : void
+        {
+            Alert.okLabel = "确定";
+            Alert.cancelLabel = "取消";
+            Alert.show("你确定要删除吗？", "删除确认", 1 | 2, this, function (event:CloseEvent)
+            {
+                var _loc_2:SafeUser = null;
+                var _loc_3:CommonArrayDeleteEvent = null;
+                if (event.detail == Alert.YES)
+                {
+                    _loc_2 = SafeUser(evt.obj);
+                    _loc_3 = new CommonArrayDeleteEvent("SafeUserService", "delete", _loc_2);
+                    _loc_3.dataArray = safeUsers;
+                    _loc_3.removeNode = _loc_2;
+					UIComponent(evt.target).dispatchEvent(_loc_3);
+                }
+                return;
+            }// end function
+            );
+            return;
+        }// end function
+
+
+
+        public function editTrain() : void
+        {
+            var _loc_1:EditTrain = null;
+            if (this.trainGrid.selectedItem != null)
+            {
+                _loc_1 = new EditTrain();
+                _loc_1.train = Training(this.trainGrid.selectedItem);
+                _loc_1.popUp();
+            }
+            else
+            {
+                Alert.show("请选择培训记录", "提示");
+            }
+            return;
+        }// end function
+
+        public function doSearch() : void
+        {
+            this.page.currentPage = 1;
+            var _loc_1:Object = new Object();
+            _loc_1.type = "simpleSearch";
+			_loc_1.safeUserType = this.type;
+            _loc_1.value = this.theSafeUserName.text;
+            this.page.queryCondition = _loc_1;
+			this.pageResultProxy = new CommonPageEvent("SafeUserService", "loadSafeUser", this.page);
+			pageResultProxy.page=this.page;
+			this.pageResultProxy.dataArray = this.safeUsers;
+            this.dispatchEvent(this.pageResultProxy);
+            return;
+        }// end function
+
+
+
+
+
+        public function formatDate(obj:Object, column:DataGridColumn) : String
+        {
+			var dateFormat :DateFormatter = new DateFormatter;
+			dateFormat.formatString="YYYY-MM-DD";
+            return dateFormat.format(obj[column.dataField]);
+        }// end function
+
+
+
+        public function getTrains(event:ListEvent) : void
+        {
+            this.trainDetails.removeAll();
+            var _loc_2:SafeUser = SafeUser(this.safeUserList.selectedItem);
+            var _loc_3:CommonArrayListEvent = new CommonArrayListEvent("TrainingService", "findBySafeUser", _loc_2);
+            _loc_3.dataArray = this.trains;
+            this.dispatchEvent(_loc_3);
+            return;
+        }// end function
+
+
+
+        public function getSafeUser(safeuser:SafeUser) : void
+        {
+            var _loc_2:Object = new Object();
+            _loc_2.type = "getSafeUser";
+            _loc_2.safeUserId = safeuser.dbId;
+            this.page.queryCondition = _loc_2;
+			this.pageResultProxy = new CommonPageEvent("SafeUserService", "loadSafeUser", this.page);
+			pageResultProxy.page=this.page;
+			this.pageResultProxy.dataArray = this.safeUsers;
+            this.dispatchEvent(this.pageResultProxy);
+            return;
+        }// end function
+
+
+
+        public function complexSearch() : void
+        {
+            this.page.currentPage = 1;
+            var _loc_1:* = new Object();
+            _loc_1.type = "complexSearch";
+            if (this.companyName.text != "")
+            {
+                _loc_1.companyName = this.companyName.text;
+            }
+            if (this.safeUserName.text != "")
+            {
+                _loc_1.safeUserName = this.safeUserName.text;
+            }
+            if (this.bianhao.text != "")
+            {
+                _loc_1.id = this.bianhao.text;
+            }
+            if (Town(this.town.selectedItem).dbId != 0)
+            {
+                _loc_1.townId = Town(this.town.selectedItem).dbId;
+            }
+            if (this.safeUserType.selectedItem.value != 99)
+            {
+                _loc_1.safeUserType = this.safeUserType.selectedItem.value;
+            }
+            if (this.sex.selectedItem.value != 99)
+            {
+                _loc_1.sex = this.sex.selectedItem.label;
+            }
+            if (this.phoneType.selectedItem.value != 99)
+            {
+                _loc_1.phoneType = this.phoneType.selectedItem.value;
+            }
+            if (DataDict(this.national.selectedItem).dbId != 0)
+            {
+                _loc_1.nationalId = DataDict(this.national.selectedItem).dbId;
+            }
+            if (this.identityID.text != "")
+            {
+                _loc_1.identityID = this.identityID.text;
+            }
+            if (DataDict(this.companyType.selectedItem).dbId != 0)
+            {
+                _loc_1.companyTypeId = DataDict(this.companyType.selectedItem).dbId;
+            }
+            if (DataDict(this.nature.selectedItem).dbId != 0)
+            {
+                _loc_1.natureId = DataDict(this.nature.selectedItem).dbId;
+            }
+            if (this.hasTrained.selectedItem.value != 99)
+            {
+                _loc_1.hasTrained = this.hasTrained.selectedItem.value;
+            }
+            if (this.timeSelect.selected)
+            {
+                _loc_1.startDate = this.startDate.selectedDate;
+                _loc_1.endDate = this.endDate.selectedDate;
+            }
+            if (this.zsdq.selected)
+            {
+                _loc_1.zsdq = this.zsdqDate.selectedDate;
+            }
+            this.page.queryCondition = _loc_1;
+			this.pageResultProxy = new CommonPageEvent("SafeUserService", "loadSafeUser", this.page);
+			pageResultProxy.page=this.page;
+			this.pageResultProxy.dataArray = this.safeUsers;
+			this.dispatchEvent(this.pageResultProxy);
+            return;
+        }// end function
+
+
+
+
+        public function checkTrained(obj:Object, column:DataGridColumn) : String
+        {
+            var _loc_3:* = int(obj["hasTrained"]);
+            if (_loc_3 == 0)
+            {
+                return "未培训";
+            }
+            if (_loc_3 > 0)
+            {
+                return "已培训";
+            }
+            return "";
+        }// end function
+
+
+
+
+
+
+        public function addSafeUser() : void
+        {
+            var _loc_1:* = new SaveSafeUser();
+            _loc_1.safeUsers = this.safeUsers;
+            _loc_1.popUp();
+            return;
+        }// end function
+
+
+
+        public function viewSafeUser() : void
+        {
+            var _loc_1:ViewSafeUser = null;
+            if (this.safeUserList.selectedItem != null)
+            {
+                _loc_1 = new ViewSafeUser();
+                _loc_1.safeUser = SafeUser(this.safeUserList.selectedItem);
+                _loc_1.popUp();
+            }
+            else
+            {
+                Alert.show("请先选择需要查看的安全员", "提示");
+            }
+            return;
+        }// end function
+
+
+
+        public function advanceSearch(event:MouseEvent) : void
+        {
+            if (CheckBox(event.target).selected)
+            {
+                currentState = "s2";
+            }
+            else
+            {
+                currentState = "";
+            }
+            return;
+        }// end function
+
+        public function searchInit() : void
+        {
+            var defaultEncoding:DataDict;
+            defaultEncoding = new DataDict();
+            defaultEncoding.name = "请选择";
+            defaultEncoding.dbId = 0;
+            var p1:CommonArrayListEvent = new CommonArrayListEvent("DataDictService", "findAllByCode", "C");
+            p1.dataArray = this.natureList;
+            p1.successFunction = function (result:Object) : void
+            {
+                natureList.addItemAt(defaultEncoding, 0);
+                nature.selectedIndex = 0;
+                return;
+            }// end function
+            ;
+            this.dispatchEvent(p1);
+            var p2:CommonArrayListEvent = new CommonArrayListEvent("DataDictService", "findAllByCode", "D");
+            p2.dataArray = this.companyTypeList;
+            p2.successFunction = function (_watcherSetupUtil:Object) : void
+            {
+                companyTypeList.addItemAt(defaultEncoding, 0);
+                companyType.selectedIndex = 0;
+                return;
+            };
+			this.dispatchEvent(p2);
+            var p3:CommonArrayListEvent = new CommonArrayListEvent("TownService", "findAll");
+            p3.dataArray = this.townList;
+            p3.successFunction = function (_watcherSetupUtil:Object) : void
+            {
+                var _loc_2:Town = new Town();
+                _loc_2.name = "请选择";
+                _loc_2.dbId = 0;
+                townList.addItemAt(_loc_2, 0);
+                town.selectedIndex = 0;
+                return;
+            }// end function
+            ;
+            this.dispatchEvent(p3);
+            var p4:CommonArrayListEvent = new CommonArrayListEvent("DataDictService", "findAllByCode", "E");
+            p4.dataArray = this.nationalList;
+            p4.successFunction = function (_watcherSetupUtil:Object) : void
+            {
+                nationalList.addItemAt(defaultEncoding, 0);
+                national.selectedIndex = 0;
+                return;
+            };
+			this.dispatchEvent(p4);
+            return;
+        }// end function
+
+        public override function refresh() : void
+        {
+			this.pageResultProxy = new CommonPageEvent("SafeUserService", "loadSafeUser", this.page);
+			pageResultProxy.page=this.page;
+			this.pageResultProxy.dataArray = this.safeUsers;
+			this.dispatchEvent(this.pageResultProxy);
+            return;
+        }// end function
+
+        public function isFaRen(obj:Object, column:DataGridColumn) : String
+        {
+            var _loc_3:int = int(obj[column.dataField]);
+            if (_loc_3 == 0)
+            {
+                return "是";
+            }
+            if (_loc_3 == 1)
+            {
+                return "否";
+            }
+            return "";
+        }// end function
+		
+		public function haiPic(obj:Object, column:DataGridColumn) : String
+		{
+			var _loc_3:int = int(obj[column.dataField]);
+			if (_loc_3 == 0)
+			{
+				return "无";
+			}
+			if (_loc_3 == 1)
+			{
+				return "有";
+			}
+			return "";
+		}// end function
+
+   
+
+        public function showTimeSelect(event:MouseEvent) : void
+        {
+            if (this.timeSelect.selected)
+            {
+                currentState = "timeselectstate";
+            }
+            else
+            {
+                currentState = "s2";
+            }
+            return;
+        }// end function
+
+        public function init()
+        {
+            this.page = new Page();
+            this.page.currentPage = 1;
+            this.page.pageSize = 20;
+			var _loc_1:Object = new Object();
+			_loc_1.type = "simpleSearch";
+			_loc_1.safeUserType = this.type;
+			_loc_1.value = "";
+			this.page.queryCondition = _loc_1;
+            this.pageResultProxy = new CommonPageEvent("SafeUserService", "loadSafeUser", this.page);
+			pageResultProxy.page=this.page;
+            this.pageResultProxy.dataArray = this.safeUsers;
+            this.addEventListener("viewEvent", this.viewSafeUser2);
+            this.addEventListener("editEvent", this.editSafeUser2);
+            this.addEventListener("removeEvent", this.removeSafeUser2);
+            return;
+        }// end function
+
+        public function viewSafeUser2(event:OperateRendererEvent) : void
+        {
+            var _loc_2:* = new ViewSafeUser();
+            _loc_2.safeUser = SafeUser(event.obj);
+            _loc_2.popUp();
+            return;
+        }// end function
+
+  
+        public function editSafeUser() : void
+        {
+            var _loc_1:EditSafeUser = null;
+            if (this.safeUserList.selectedItem != null)
+            {
+                _loc_1 = new EditSafeUser();
+                _loc_1.safeUser = SafeUser(this.safeUserList.selectedItem);
+                _loc_1.popUp();
+            }
+            else
+            {
+                Alert.show("请先选择安全员", "提示");
+            }
+            return;
+        }// end function
+
+  
+
+        public function editSafeUser2(event:OperateRendererEvent) : void
+        {
+            var _loc_2:* = new EditSafeUser();
+            _loc_2.safeUser = SafeUser(event.obj);
+            _loc_2.popUp();
+            return;
+        }// end function
+
+
+
+        public function getCompanyName(data:Object, column:DataGridColumn) : String
+        {
+            var _loc_3:Company = Company(data["company"]);
+            return _loc_3.dbId + "." + _loc_3.name;
+        }// end function
+
+
+
+
+        public function getPhone1(data:Object, column:DataGridColumn) : String
+        {
+            var _loc_3:* = int(data["phone1Type"]);
+            if (_loc_3 == 0)
+            {
+                return "移动:" + data["phone1"];
+            }
+            if (_loc_3 == 1)
+            {
+                return "联通:" + data["phone1"];
+            }
+            if (_loc_3 == 2)
+            {
+                return "电信:" + data["phone1"];
+            }
+            return data["phone1"];
+        }// end function
+
+        public function getPhone2(data:Object, column:DataGridColumn) : String
+        {
+            var _loc_3:* = int(data["phone2Type"]);
+            if (_loc_3 == 0)
+            {
+                return "移动:" + data["phone2"];
+            }
+            if (_loc_3 == 1)
+            {
+                return "联通:" + data["phone2"];
+            }
+            if (_loc_3 == 2)
+            {
+                return "电信:" + data["phone2"];
+            }
+            return data["phone2"];
+        }// end function
+
+ 
+
+        public function hasTrainedFun(obj:Object, column:DataGridColumn) : String
+        {
+            var _loc_3:int = int(obj[column.dataField]);
+            if (_loc_3 == 0)
+            {
+                return "否";
+            }
+            if (_loc_3 == 1)
+            {
+                return "是";
+            }
+            return "";
+        }// end function
+
+        public function removeSafeUser(evt:Event) : void
+        {
+            if (this.safeUserList.selectedItem != null)
+            {
+                Alert.okLabel = "确定";
+                Alert.cancelLabel = "取消";
+                Alert.show("你确定要删除吗？", "删除确认", 1 | 2, this, function (event:CloseEvent)
+            {
+                var _loc_2:SafeUser = null;
+                var _loc_3:CommonArrayDeleteEvent = null;
+                if (event.detail == Alert.YES)
+                {
+                    _loc_2 = SafeUser(safeUserList.selectedItem);
+                    _loc_3 = new CommonArrayDeleteEvent("SafeUserService", "delete", _loc_2);
+                    _loc_3.dataArray = safeUsers;
+                    _loc_3.removeNode = _loc_2;
+					UIComponent(evt.target).dispatchEvent(_loc_3);
+                }
+                return;
+            }// end function
+            );
+            }
+            else
+            {
+                Alert.show("请先选择需要删除的安全员");
+            }
+            return;
+        }// end function
+
+        public function getTrainDetails(event:ListEvent) : void
+        {
+            var _loc_2:Training = Training(this.trainGrid.selectedItem);
+            var _loc_3:TrainDetail = new TrainDetail();
+            _loc_3.times = "第一年";
+            _loc_3.trainDate = _loc_2.train1;
+            _loc_3.trainType = _loc_2.train1Type;
+            _loc_3.trainScore = _loc_2.train1Score;
+            _loc_3.training = _loc_2;
+            var _loc_4:TrainDetail = new TrainDetail();
+            _loc_4.times = "第二年";
+            _loc_4.trainDate = _loc_2.train2;
+            _loc_4.trainType = _loc_2.train2Type;
+            _loc_4.trainScore = _loc_2.train2Score;
+            _loc_4.training = _loc_2;
+            var _loc_5:TrainDetail = new TrainDetail();
+            _loc_5.times = "第三年";
+            _loc_5.trainDate = _loc_2.train3;
+            _loc_5.trainType = _loc_2.train3Type;
+            _loc_5.trainScore = _loc_2.train3Score;
+            _loc_5.training = _loc_2;
+            this.trainDetails.removeAll();
+            this.trainDetails.addItem(_loc_3);
+            this.trainDetails.addItem(_loc_4);
+            this.trainDetails.addItem(_loc_5);
+            return;
+        }// end function
+
+   
+        public function removeTrain(evt:Event) : void
+        {
+            if (this.trainGrid.selectedItem != null)
+            {
+                Alert.okLabel = "确定";
+                Alert.cancelLabel = "取消";
+                Alert.show("你确定要删除吗？", "删除确认", 1 | 2, this, function (event:CloseEvent)
+            {
+                var train:Training;
+                var proxy:CommonArrayDeleteEvent;
+                var event:* = event;
+                if (event.detail == Alert.YES)
+                {
+                    train = Training(trainGrid.selectedItem);
+                    proxy = new CommonArrayDeleteEvent("TrainingService", "delete", train);
+                    proxy.dataArray = trains;
+                    proxy.removeNode = train;
+                    proxy.successFunction = function (param1:Object)
+                {
+                    trainDetails.removeAll();
+                    return;
+                };
+					UIComponent(evt.target).dispatchEvent(proxy);
+                }
+                return;
+            }// end function
+            );
+            }
+            else
+            {
+                Alert.show("请先选择需要删除的培训记录");
+            }
+            return;
+        }// end function
+
+        public function addTrain() : void
+        {
+            var _loc_1:SaveTrain = null;
+            if (this.safeUserList.selectedItem != null)
+            {
+                _loc_1 = new SaveTrain();
+                _loc_1.trains = this.trains;
+                _loc_1.safeUser = SafeUser(this.safeUserList.selectedItem);
+                _loc_1.popUp();
+            }
+            else
+            {
+                Alert.show("请选择安全员", "提示");
+            }
+            return;
+        }// end function
+
+
+		protected function zsdq_clickHandler(event:MouseEvent):void
+		{
+			if(zsdq.selected)
+				zsdqDate.enabled=true;
+			else
+				zsdqDate.enabled=false;
+		}
+
+
+		protected function formitem1_clickHandler(event:MouseEvent):void
+		{
+			if(timeSelect.selected){
+				startDate.enabled=true;
+				endDate.enabled=true;
+			}else{
+				startDate.enabled=false;
+				endDate.enabled=false;
+			}
+		}
+
+    ]]></fx:Script>
+	<ui:states>
+		<s:State name="s1"/>
+		<s:State name="s2"/>
+	</ui:states>
+	<mx:ApplicationControlBar dock="true" width="100%" height="35" verticalAlign="middle">
+		<ui:PermissionButton Permission="修改培训员" label="安全员修改" click="{this.editSafeUser();}"/>
+		<ui:PermissionButton Permission="删除培训员" label="安全员删除" click="{this.removeSafeUser(event);}"/>
+		<mx:Label text="安全员姓名"/>
+		<mx:TextInput id="theSafeUserName"/>
+		<mx:HBox id="searchBar"/>
+		<mx:Button label="搜索" click="{this.doSearch();}"/>
+		<s:CheckBox label="高级搜索" click="advanceSearch(event)"/>
+	</mx:ApplicationControlBar>
+	<mx:HDividedBox width="100%" height="100%">
+		<mx:Panel headerHeight="15" height="100%" includeIn="s2"  initialize="searchInit()">
+			<mx:Form>
+				<mx:FormHeading label="高级搜索" />
+				<mx:FormItem   label="编号:"  >
+					<s:TextInput id="bianhao" />
+				</mx:FormItem>
+				<mx:FormItem   label="公司名:"  >
+					<s:TextInput id="companyName" />
+				</mx:FormItem>
+				<mx:FormItem   label="姓名:"  >
+					<s:TextInput id="safeUserName"  />
+				</mx:FormItem>
+				<mx:FormItem   label="身份证号:"  >
+					<s:TextInput id="identityID" />
+				</mx:FormItem>
+				<mx:FormItem   label="乡镇:"  >
+					<ui:CommonComboBox id="town" labelField="name" dataProvider="{townList}"/>
+				</mx:FormItem>
+				<mx:FormItem   label="安全员类型:"  >
+					<ui:CommonComboBox id="safeUserType"  dataProvider="{safeTypeList}"/>
+				</mx:FormItem>
+				<mx:FormItem   label="性别:" >
+					<ui:CommonComboBox id="sex" dataProvider="{sexs}"/>
+				</mx:FormItem>
+				<mx:FormItem  label="名族:"  >
+					<ui:CommonComboBox id="national" labelField="name" dataProvider="{nationalList}" />
+				</mx:FormItem>
+				<mx:FormItem  label="手机入网方式:"  >
+					<ui:CommonComboBox id="phoneType" dataProvider="{phoneTypeList}" />
+				</mx:FormItem>
+				<mx:FormItem  label="单位类型:"   >
+					<ui:CommonComboBox id="companyType" labelField="name" dataProvider="{companyTypeList}" />
+				</mx:FormItem>
+				<mx:FormItem  label="单位性质:"   >
+					<ui:CommonComboBox id="nature" labelField="name" dataProvider="{natureList}" />
+				</mx:FormItem>
+				<mx:FormItem  label="培训与否:"   >
+					<ui:CommonComboBox id="hasTrained" dataProvider="{hasTrainedList}" />
+				</mx:FormItem>
+				<mx:FormItem  label="证书到期:"   >
+					<s:CheckBox id="zsdq" click="zsdq_clickHandler(event)" />
+					<ui:CommonDateField id="zsdqDate" enabled="false"  width="145"/>
+				</mx:FormItem>
+				<mx:FormItem  label="添加时间:" click="formitem1_clickHandler(event)" >
+					<s:CheckBox id="timeSelect" />
+					<ui:CommonDateField id="startDate" enabled="false"  width="145"/>
+					<ui:CommonDateField id="endDate" enabled="false"  width="145"/>
+				</mx:FormItem>
+				<mx:FormItem  label="搜索:"  >
+					<s:Button label="搜索" click="complexSearch()"/>
+				</mx:FormItem>
+			</mx:Form>
+		</mx:Panel>
+		<mx:VBox id="v1" width="100%" height="100%" horizontalAlign="center">
+			<ui:CommonDataGrid id="safeUserList" width="100%"  itemClick="getTrains(event)" doubleClickEnabled="true" itemDoubleClick="editSafeUser()" dataProvider='{safeUsers}' height="{this.height - 320}">
+				<ui:columns>
+					<mx:DataGridColumn dataField="dbId" headerText="编号" />
+					<mx:DataGridColumn dataField="name" headerText="企业名" labelFunction="getCompanyName" />
+					<mx:DataGridColumn dataField="hasTrained" headerText="是否培训" labelFunction="checkTrained" />
+					<mx:DataGridColumn dataField="name" headerText="姓名" />
+					<mx:DataGridColumn dataField="type" headerText="是否是负责人" labelFunction="isFaRen" />
+					<mx:DataGridColumn dataField="identityID" headerText="身份证" />
+					<mx:DataGridColumn dataField="sex" headerText="性别" />
+					<mx:DataGridColumn dataField="zhiWu" headerText="职务" />
+					<mx:DataGridColumn dataField="zhiCheng" headerText="职称" />
+					<mx:DataGridColumn dataField="school" headerText="毕业院校" />
+					<mx:DataGridColumn dataField="phone1" headerText="手机1" labelFunction="getPhone1" />
+					<mx:DataGridColumn dataField="phone2" headerText="手机2" labelFunction="getPhone2" />
+					<mx:DataGridColumn dataField="qq" headerText="qq" />
+					<mx:DataGridColumn dataField="id" headerText="操作" width="160"  itemRenderer="com.zlhw.client.base.ui.OperateRenderer"  />
+				</ui:columns>
+			</ui:CommonDataGrid>
+			<mx:HBox width="100%" height="82">
+				<mx:VBox>
+					<ui:PermissionButton Permission="添加培训记录" label="添加培训记录" click="{this.addTrain();}"/>
+					<ui:PermissionButton Permission="编辑培训记录" label="编辑培训记录" click="{this.editTrain();}"/>
+					<ui:PermissionButton Permission="删除培训记录" label="删除培训记录" click="{this.removeTrain(event);}"/>
+				</mx:VBox>
+				<ui:CommonDataGrid id="trainGrid" height="100%" width="100%" doubleClickEnabled="true" itemDoubleClick="editTrain()"  itemClick="{this.getTrainDetails(event);}" dataProvider='{trains}'>
+					<ui:columns>
+						<mx:DataGridColumn dataField="certificate" headerText="证书编号" />
+						<mx:DataGridColumn dataField="score" headerText="培训分数" />
+						<mx:DataGridColumn dataField="hasPic" headerText="有无照片" labelFunction="haiPic" />
+						<mx:DataGridColumn dataField="hasIdentity" headerText="有无身份证复印件" labelFunction="haiPic" />
+						<mx:DataGridColumn dataField="startDate" headerText="培训开始日期" labelFunction="formatDate" />
+						<mx:DataGridColumn dataField="endDate" headerText="培训截止日期" labelFunction="formatDate" />
+					</ui:columns>
+				</ui:CommonDataGrid>
+			</mx:HBox>
+			<ui:CommonDataGrid id="trainDetailsList" width="100%" rowCount="4" doubleClickEnabled="true"  itemDoubleClick="editTrainDetail(event)" dataProvider='{trainDetails}'>
+				<ui:columns>
+					<mx:DataGridColumn dataField="times" headerText="年份" />
+					<mx:DataGridColumn dataField="trainDate" headerText="培训日期" labelFunction="formatDate" />
+					<mx:DataGridColumn dataField="trainType" headerText="是否培训过" labelFunction="hasTrainedFun"  />
+					<mx:DataGridColumn dataField="trainScore" headerText="培训成绩" />
+				</ui:columns>
+			</ui:CommonDataGrid>
+			<ui:Pagination id="pagination" pageEvent="{pageResultProxy}"/>
+		</mx:VBox>
+	</mx:HDividedBox>
+
+</ui:TabView>

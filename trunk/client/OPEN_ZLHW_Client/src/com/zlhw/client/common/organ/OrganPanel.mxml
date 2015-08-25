@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:TabView xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			xmlns:s="library://ns.adobe.com/flex/spark" 
+			xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="com.zlhw.client.base.ui.*" label="机构管理"
+			 initialize="initHandler(event)">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			public var organAction : OrganAction = new OrganAction;
+			protected function initHandler(event:FlexEvent):void
+			{
+				organAction.organPanel =this;
+				organAction.init();
+				organAction.loadOrganList();
+			}
+			
+		]]>
+	</fx:Script>
+	<s:HGroup >
+	<ui:CRUDButtonBar  itemName="机构"
+					   addClick="this.organAction.organAdd()" 
+					   editClick="this.organAction.organEdit()" 
+					   deleteClick="optConfirm(this.organAction.deleteOrgan)"/>
+		<s:Button label="关联机构工作" click="this.organAction.jobDistribute()"  />
+	</s:HGroup>
+	<s:HGroup width="100%" height="100%">
+		<ui:CommonTree height="100%" id="organTree" dataProvider="{organAction.organTreeList}" itemClick="this.organAction.organClick(event)" />
+		<mx:DataGrid width="100%" height="100%" dataProvider="{organAction.jobList}"  >
+			<mx:columns>
+				<mx:DataGridColumn headerText="编码" dataField="dbId" />
+				<mx:DataGridColumn headerText="名称" dataField="name"/>
+			</mx:columns>
+		</mx:DataGrid>
+	</s:HGroup>
+</ui:TabView>

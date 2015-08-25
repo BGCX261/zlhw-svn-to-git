@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+	         http://www.springframework.org/schema/beans         
+	         http://www.springframework.org/schema/beans/spring-beans-3.0.xsd         
+	         http://www.springframework.org/schema/context         
+	         http://www.springframework.org/schema/context/spring-context-3.0.xsd         
+	         http://www.springframework.org/schema/mvc         
+	         http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+	         http://www.springframework.org/schema/tx
+             http://www.springframework.org/schema/tx/spring-tx.xsd">
+    
+    <bean class="com.ZLHW.base.factory.BeanFactory" />
+
+	
+	
+	<!-- 启用对事务注解的支持 -->
+	<tx:annotation-driven transaction-manager="transactionManager"
+		proxy-target-class="true" />
+
+	<!--======================所有DAO的基类====================== -->
+	<bean id="dao" class="com.ZLHW.base.dao.DAO" abstract="true">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<!--======================所有Service的基类================== -->
+	<bean id="baseService" class="com.ZLHW.base.service.BaseService"
+		abstract="true">
+		<property name="serverUrl" value="${local.server.url}" />
+		<property name="serverPort" value="${local.server.port}" />
+	</bean>
+	<!--======================工作流处理服务====================== -->
+	<bean id="flowService" class="com.ZLHW.common.service.FlowService"
+		parent="baseService">
+		 <property name="processEngine" ref="processEngine" />
+	</bean>
+
+	<!-- ===================以下是上传下载文件的beans==================== -->
+	<bean id="UploadAndDownLoadService" class="com.ZLHW.base.service.UploadAndDownLoadService"
+		parent="baseService" />
+
+
+
+	
+</beans>

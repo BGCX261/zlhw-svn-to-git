@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="ZLHW"
+  id="myeclipse.1280156112015"
+  context-root="/JNLXC"
+  j2ee-spec="5.0"
+  archive="ZLHW.war">
+  <attributes>
+    <attribute name="webrootdir" value="/WebRoot" />
+  </attributes>
+</project-module>
+
